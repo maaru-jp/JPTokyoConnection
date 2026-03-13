@@ -363,10 +363,12 @@
        *  若有設定，圖片會直接上傳到 Cloudinary，試算表只存 Cloudinary 的圖片網址。
        *  1. 在 Cloudinary 建立帳號，記下 cloud name，例如：maaru-jp
        *  2. 在 Cloudinary 後台建立「unsigned upload preset」，例如：wish_pool_unsigned
-       *  3. 把 cloud name 與 upload preset 名稱填到下方變數中
+       *  3. 若想分類到資料夾，可在下方 CLOUDINARY_FOLDER 寫上資料夾名稱，例如：wish-pool
+       *  4. 把 cloud name、upload preset 名稱與資料夾名稱填到下方變數中
        */
       var CLOUDINARY_CLOUD_NAME = "";
       var CLOUDINARY_UPLOAD_PRESET = "";
+      var CLOUDINARY_FOLDER = "wish-pool"; // 已建立的 Cloudinary 資料夾名稱，若不想用可設為空字串 ""
 
       var TOTAL = 50;
       var STORAGE_KEY = "wish_pool_supports";
@@ -691,6 +693,9 @@
             var formData = new FormData();
             formData.append("file", file);
             formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            if(CLOUDINARY_FOLDER){
+              formData.append("folder", CLOUDINARY_FOLDER);
+            }
 
             fetch(uploadUrl, {
               method: "POST",
