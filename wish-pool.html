@@ -191,6 +191,7 @@
       </div>
     </header>
 
+    <p id="wishListLoadHint" class="wish-list-hint" style="display:none; margin-bottom:12px; padding:10px 14px; background:#fef3c7; border:1px solid #f59e0b; border-radius:12px; font-size:13px; color:#92400e; font-weight:800;">無法從伺服器載入許願列表，以下為預設範例。若已設定 API 網址，請確認試算表第一列為標題、並已部署為「任何人」存取。</p>
     <div class="grid" id="wishGrid">
       <div class="wish-card" data-id="1">
         <div class="img-wrap">🫘</div>
@@ -397,26 +398,53 @@
           if(id && counts[id] != null) updateCardUI(id, counts[id]);
         });
       }
+      function applyWishList(data){
+        var list = (data && data.wishes) ? data.wishes : [];
+        var grid = document.getElementById("wishGrid");
+        if(!grid || list.length === 0) return;
+        var hint = document.getElementById("wishListLoadHint");
+        if(hint) hint.style.display = "none";
+        var counts = getCounts();
+        list.forEach(function(w){
+          var id = String(w.id != null ? w.id : "");
+          if(counts[id] == null) counts[id] = parseInt(w.supportCount, 10) || 0;
+        });
+        saveCounts(counts);
+        grid.innerHTML = list.map(renderWishCard).join("");
+        bindWishCardButtons();
+        applyCountsToCards();
+      }
+      function showListLoadError(){
+        var hint = document.getElementById("wishListLoadHint");
+        if(hint) hint.style.display = "block";
+      }
       function loadWishList(){
         if(!WISH_LIST_URL) return Promise.resolve();
         var grid = document.getElementById("wishGrid");
         if(!grid) return Promise.resolve();
-        return fetch(WISH_LIST_URL)
-          .then(function(res){ return res.ok ? res.json() : Promise.reject(new Error("無法載入許願列表")); })
+        var listUrl = WISH_LIST_URL;
+        return fetch(listUrl)
+          .then(function(res){ return res.ok ? res.json().catch(function(){ return null; }) : Promise.reject(new Error("無法載入")); })
           .then(function(data){
-            var list = (data && data.wishes) ? data.wishes : [];
-            if(list.length === 0) return;
-            var counts = getCounts();
-            list.forEach(function(w){
-              var id = String(w.id || "");
-              if(counts[id] == null) counts[id] = parseInt(w.supportCount, 10) || 0;
-            });
-            saveCounts(counts);
-            grid.innerHTML = list.map(renderWishCard).join("");
+            if(data && data.wishes && data.wishes.length > 0) applyWishList(data);
+          })
+          .catch(function(){
+            window.__wishPoolListCallback = function(data){
+              if(data && data.wishes && data.wishes.length > 0) applyWishList(data);
+              var s = document.getElementById("wishListJsonpScript");
+              if(s) s.remove();
+            };
+            var sep = listUrl.indexOf("?") >= 0 ? "&" : "?";
+            var script = document.createElement("script");
+            script.id = "wishListJsonpScript";
+            script.src = listUrl + sep + "callback=__wishPoolListCallback";
+            script.onerror = function(){ showListLoadError(); };
+            document.head.appendChild(script);
+          })
+          .finally(function(){
             bindWishCardButtons();
             applyCountsToCards();
-          })
-          .catch(function(err){ console.warn("許願列表載入失敗，顯示預設卡片", err); });
+          });
       }
 
       function renderFeed(){
