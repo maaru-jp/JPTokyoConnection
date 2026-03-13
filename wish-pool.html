@@ -226,6 +226,25 @@
     .wish-detail-modal .detail-cta.active{ background: var(--wish); color: #fff; }
     .wish-detail-modal .detail-cta.done{ background: #f3f4f6; color: var(--muted); cursor: default; }
 
+    .image-viewer{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      padding: 16px;
+    }
+    .image-viewer.show{ display: flex; }
+    .image-viewer img{
+      max-width: 92vw;
+      max-height: 92vh;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.7);
+      background: #000;
+    }
+
     .feed-card h3{ font-size: 16px; font-weight: 900; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
     .feed-list{ list-style: none; }
     .feed-list li{
@@ -371,6 +390,10 @@
       </div>
       <button type="button" class="detail-cta active" id="detailCta">❤️ 我也想要 (+1 集氣)</button>
     </div>
+  </div>
+
+  <div class="image-viewer" id="imageViewer">
+    <img id="imageViewerImg" src="" alt="預覽圖片" />
   </div>
 
   <script>
@@ -536,7 +559,7 @@
         if(imagesEl){
           if(imgs.length) imagesEl.innerHTML = imgs.map(function(url){
             var u = escapeHtml(String(url).trim());
-            return "<img src=\"" + u + "\" alt=\"\" referrerpolicy=\"no-referrer\" loading=\"lazy\" onclick=\"window.open('" + u + "','_blank');\" />";
+            return "<img src=\"" + u + "\" alt=\"\" referrerpolicy=\"no-referrer\" loading=\"lazy\" onclick=\"openImageViewer('" + u + "');\" />";
           }).join("");
           else imagesEl.innerHTML = "";
         }
@@ -568,6 +591,15 @@
         if(countEl) countEl.textContent = n;
         if(fillEl) fillEl.style.width = Math.min(100, (n / TOTAL * 100)) + "%";
         if(ctaEl){ ctaEl.classList.remove("active"); ctaEl.classList.add("done"); ctaEl.textContent = "❤️ 你已經集氣過囉!"; ctaEl.disabled = true; }
+      }
+
+      // 圖片全螢幕預覽（不顯示 Cloudinary 網址）
+      function openImageViewer(src){
+        var viewer = document.getElementById("imageViewer");
+        var img = document.getElementById("imageViewerImg");
+        if(!viewer || !img) return;
+        img.src = src;
+        viewer.classList.add("show");
       }
 
       // 管理員：更新單筆許願（狀態 / 圖片）
@@ -719,8 +751,12 @@
         var detailCta = document.getElementById("detailCta");
         var btnReplace = document.getElementById("btnAdminReplaceImage");
         var btnCloseWish = document.getElementById("btnAdminCloseWish");
+        var imageViewer = document.getElementById("imageViewer");
         if(detailClose) detailClose.addEventListener("click", closeWishDetail);
         if(detailModal) detailModal.addEventListener("click", function(e){ if(e.target === detailModal) closeWishDetail(); });
+        if(imageViewer){
+          imageViewer.addEventListener("click", function(){ imageViewer.classList.remove("show"); });
+        }
         if(detailCta){
           detailCta.addEventListener("click", function(e){
             e.stopPropagation();
