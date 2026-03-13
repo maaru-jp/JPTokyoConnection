@@ -265,10 +265,6 @@
             </div>
             <p style="margin-top:8px; font-size:12px; color:var(--muted);">直接點擊或拖曳圖片到上方格子里，送出時會自動上傳並顯示在卡片上（單張建議 2MB 以內）。<strong>手機也可點擊格子，選相簿或拍照上傳</strong>。</p>
           </div>
-          <div class="field" style="margin-top:6px;">
-            <label>或貼主圖網址（選填）</label>
-            <input type="url" name="image1" placeholder="https://... 沒有上傳圖片時可貼連結" />
-          </div>
           <div class="field">
             <label>規格／備註（可選）</label>
             <textarea name="note" rows="2" placeholder="尺寸、數量、顏色等"></textarea>
@@ -787,7 +783,7 @@
             category: (form.category && form.category.value) ? form.category.value.trim() : "其他",
             link: (form.link && form.link.value) ? form.link.value.trim() : "",
             region: (form.region && form.region.value) ? form.region.value.trim() : "",
-            image1: (form.image1 && form.image1.value) ? form.image1.value.trim() : "",
+            image1: "",
             image2: "",
             image3: ""
           };
@@ -804,9 +800,7 @@
               if(urls[2]) payload.image3 = urls[2];
               var hadFiles = wishImageFiles.some(function(x){ return x && x.file; });
               if(hadFiles && !payload.image1 && !payload.image2 && !payload.image3){
-                if(!payload.image1 && document.getElementById("wishForm").image1 && !document.getElementById("wishForm").image1.value){
-                  alert("圖片上傳未成功（可能被瀏覽器阻擋）。\n\n請改在「或貼主圖網址」欄位貼上圖片連結，或稍後在試算表 image1 欄手動貼網址。");
-                }
+                alert("圖片上傳未成功（可能被瀏覽器或網路阻擋）。\n\n這筆許願會照常送出，但卡片暫時不會有圖片。");
               }
               if(btn) btn.textContent = "送出中…";
               doSubmitWish(payload);
