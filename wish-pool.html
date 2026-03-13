@@ -358,6 +358,16 @@
       var WISH_LIST_URL = "https://script.google.com/macros/s/AKfycbztW2xXJsPQmrvHYENQ7QtNxCJdXT4gXWOA2NpmsXDBd5ZizEzodropXvjNHL9yLW4-_g/exec";
       var WISH_SUBMIT_URL = "https://script.google.com/macros/s/AKfycbztW2xXJsPQmrvHYENQ7QtNxCJdXT4gXWOA2NpmsXDBd5ZizEzodropXvjNHL9yLW4-_g/exec";
 
+      /*
+       * 【選填但建議設定】Cloudinary 圖片上傳設定
+       *  若有設定，圖片會直接上傳到 Cloudinary，試算表只存 Cloudinary 的圖片網址。
+       *  1. 在 Cloudinary 建立帳號，記下 cloud name，例如：maaru-jp
+       *  2. 在 Cloudinary 後台建立「unsigned upload preset」，例如：wish_pool_unsigned
+       *  3. 把 cloud name 與 upload preset 名稱填到下方變數中
+       */
+      var CLOUDINARY_CLOUD_NAME = "";
+      var CLOUDINARY_UPLOAD_PRESET = "";
+
       var TOTAL = 50;
       var STORAGE_KEY = "wish_pool_supports";
       var STORAGE_COUNT = "wish_pool_counts";
@@ -659,55 +669,51 @@
       })();
 
       function uploadWishImages(){
-        var uploadUrl = WISH_SUBMIT_URL + (WISH_SUBMIT_URL.indexOf("?") >= 0 ? "&" : "?") + "action=uploadImage";
-        var formUploadUrl = uploadUrl + (uploadUrl.indexOf("?") >= 0 ? "&" : "?") + "source=form";
-        var maxSize = 2500000;
-        var maxFormSize = 800000;
+        // 若未設定 Cloudinary，直接略過圖片上傳（回傳空陣列）
+        if(!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET){
+          return Promise.resolve(["","",""]);
+        }
+        var uploadUrl = "https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/image/upload";
+        var maxSize = 5 * 1024 * 1024; // 5MB
 
         function uploadOne(slot){
           return new Promise(function(resolve){
-            if(!wishImageFiles[slot] || !wishImageFiles[slot].file){ resolve(""); return; }
-            var fr = new FileReader();
-            fr.onload = function(){
-              var dataUrl = fr.result;
-              if(dataUrl.length > maxSize){ resolve(""); return; }
-              fetch(uploadUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: dataUrl }) })
-                .then(function(r){ return r.json().catch(function(){ return {}; }); })
-                .then(function(d){ resolve(d.ok && d.url ? d.url : ""); })
-                .catch(function(){
-                  if(dataUrl.length <= maxFormSize) uploadByForm(dataUrl, resolve);
-                  else resolve("");
-                });
-            };
-            fr.readAsDataURL(wishImageFiles[slot].file);
+            if(!wishImageFiles[slot] || !wishImageFiles[slot].file){
+              resolve("");
+              return;
+            }
+            var file = wishImageFiles[slot].file;
+            if(file.size > maxSize){
+              // 太大就不傳這張
+              resolve("");
+              return;
+            }
+            var formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+            fetch(uploadUrl, {
+              method: "POST",
+              body: formData
+            })
+              .then(function(r){ return r.json().catch(function(){ return {}; }); })
+              .then(function(d){
+                // Cloudinary 會回傳 secure_url / url
+                if(d && d.secure_url){
+                  resolve(d.secure_url);
+                }else if(d && d.url){
+                  resolve(d.url);
+                }else{
+                  resolve("");
+                }
+              })
+              .catch(function(){
+                resolve("");
+              });
           });
         }
 
-        function uploadByForm(dataUrl, resolve){
-          var iframe = document.getElementById("wishUploadFrame");
-          if(!iframe){ iframe = document.createElement("iframe"); iframe.id = "wishUploadFrame"; iframe.name = "wishUploadFrame"; iframe.style.cssText = "position:absolute;width:0;height:0;border:0;"; document.body.appendChild(iframe); }
-          var handler = function(ev){
-            if(ev.data && ev.data.upload === true){
-              window.removeEventListener("message", handler);
-              resolve(ev.data.url || "");
-            }
-          };
-          window.addEventListener("message", handler);
-          setTimeout(function(){ window.removeEventListener("message", handler); resolve(""); }, 25000);
-          var f = document.createElement("form");
-          f.method = "POST";
-          f.action = formUploadUrl;
-          f.target = "wishUploadFrame";
-          f.style.display = "none";
-          var input = document.createElement("input");
-          input.name = "image";
-          input.value = dataUrl;
-          f.appendChild(input);
-          document.body.appendChild(f);
-          f.submit();
-          document.body.removeChild(f);
-        }
-
+        // 依序上傳最多三張圖
         return uploadOne(0).then(function(u0){
           return uploadOne(1).then(function(u1){
             return uploadOne(2).then(function(u2){
