@@ -47,14 +47,20 @@ function _jsonResponse(obj, callback) {
 }
 
 /**
- * POST：接收顧客許願表單（JSON），寫入一筆新列到 Sheet
- * 前端可送：(1) fetch 送 body JSON  (2) 表單 submit 送參數 source=form 與 data=JSON 字串（避開 CORS）
+ * POST：可為 (1) 上傳圖片 action=uploadImage  (2) 送出許願（JSON 或 form）
  */
 function doPost(e) {
+  e = e || {};
+  var params = e.parameter || {};
+
+  if (params.action === "uploadImage") {
+    return _handleImageUpload(e);
+  }
+
   var json = null;
   var returnHtml = false;
 
-  if (e && e.parameter && e.parameter.source === "form" && e.parameter.data) {
+  if (params.source === "form" && params.data) {
     returnHtml = true;
     try {
       json = JSON.parse(e.parameter.data);
@@ -110,4 +116,44 @@ function _postResponse(obj, asHtml) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * 上傳圖片：POST body 為 { image: "data:image/jpeg;base64,..." }，存到 Drive「許願池圖片」資料夾，回傳 { ok: true, url: "..." }
+ */
+function _handleImageUpload(e) {
+  try {
+    if (!e.postData || !e.postData.contents) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "沒有圖片資料" })).setMimeType(ContentService.MimeType.JSON);
+    }
+    var body = JSON.parse(e.postData.contents);
+    var dataUrl = body.image || "";
+    if (dataUrl.indexOf("base64,") === -1) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "圖片格式錯誤" })).setMimeType(ContentService.MimeType.JSON);
+    }
+    var base64 = dataUrl.split("base64,")[1];
+    if (!base64) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "圖片格式錯誤" })).setMimeType(ContentService.MimeType.JSON);
+    }
+    var mime = "image/jpeg";
+    var ext = "jpg";
+    if (dataUrl.indexOf("image/png") !== -1) { mime = "image/png"; ext = "png"; }
+    if (dataUrl.indexOf("image/gif") !== -1) { mime = "image/gif"; ext = "gif"; }
+    if (dataUrl.indexOf("image/webp") !== -1) { mime = "image/webp"; ext = "webp"; }
+    var blob = Utilities.newBlob(Utilities.base64Decode(base64), mime, "wish-" + new Date().getTime() + "." + ext);
+    var folder = _getOrCreateWishFolder();
+    var file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    var url = "https://drive.google.com/uc?export=view&id=" + file.getId();
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, url: url })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function _getOrCreateWishFolder() {
+  var name = "許願池圖片";
+  var iter = DriveApp.getFoldersByName(name);
+  if (iter.hasNext()) return iter.next();
+  return DriveApp.getRootFolder().createFolder(name);
 }

@@ -256,6 +256,11 @@
               <div class="upload-box" data-slot="1"><span class="upload-label"><span class="icon">🖼️</span>點擊或拖曳上傳 圖片</span></div>
               <div class="upload-box" data-slot="2"><span class="upload-label"><span class="icon">🖼️</span>點擊或拖曳上傳 圖片</span></div>
             </div>
+            <p style="margin-top:8px; font-size:12px; color:var(--muted);">直接點擊或拖曳圖片到上方格子里，送出時會自動上傳並顯示在卡片上（單張建議 2MB 以內）</p>
+          </div>
+          <div class="field" style="margin-top:6px;">
+            <label>或貼主圖網址（選填）</label>
+            <input type="url" name="image1" placeholder="https://... 沒有上傳圖片時可貼連結" />
           </div>
           <div class="field">
             <label>規格／備註（可選）</label>
@@ -493,6 +498,76 @@
       }
       if(btnAdmin){ btnAdmin.addEventListener("click", function(){ alert("管理員功能尚未開放"); }); }
 
+      function uploadWishImages(){
+        var uploadUrl = WISH_SUBMIT_URL + (WISH_SUBMIT_URL.indexOf("?") >= 0 ? "&" : "?") + "action=uploadImage";
+        var list = [];
+        function uploadOne(slot){
+          return new Promise(function(resolve){
+            if(!wishImageFiles[slot] || !wishImageFiles[slot].file){ resolve(""); return; }
+            var fr = new FileReader();
+            fr.onload = function(){
+              var dataUrl = fr.result;
+              if(dataUrl.length > 2600000){ resolve(""); return; }
+              fetch(uploadUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: dataUrl }) })
+                .then(function(r){ return r.json().catch(function(){ return {}; }); })
+                .then(function(d){ resolve(d.ok && d.url ? d.url : ""); })
+                .catch(function(){ resolve(""); });
+            };
+            fr.readAsDataURL(wishImageFiles[slot].file);
+          });
+        }
+        return Promise.all([ uploadOne(0), uploadOne(1), uploadOne(2) ]);
+      }
+      function doSubmitWish(payload){
+        var btn = document.querySelector("#wishForm .form-submit");
+        function onSuccess(data){
+          if(data && data.ok === false){
+            alert("寫入失敗：" + (data.error || "請稍後再試"));
+            return;
+          }
+          alert("許願已送出");
+          if(formModal) formModal.classList.remove("show");
+          document.getElementById("wishForm").reset();
+          wishImageFiles = [];
+          renderUploadPreviews();
+          if(WISH_LIST_URL) loadWishList().then(renderFeed);
+        }
+        function done(){ if(btn){ btn.disabled = false; btn.textContent = "送出許願"; } }
+
+        fetch(WISH_SUBMIT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+          body: JSON.stringify(payload)
+        })
+          .then(function(res){ return res.json().catch(function(){ return {}; }).then(function(data){ if(!res.ok) return Promise.reject(new Error(data.error || "送出失敗")); return data; }); })
+          .then(function(data){ onSuccess(data); done(); })
+          .catch(function(err){
+            var formUrl = WISH_SUBMIT_URL + (WISH_SUBMIT_URL.indexOf("?") >= 0 ? "&" : "?") + "source=form";
+            var iframe = document.getElementById("wishSubmitFrame");
+            if(!iframe){ iframe = document.createElement("iframe"); iframe.id = "wishSubmitFrame"; iframe.name = "wishSubmitFrame"; iframe.style.cssText = "position:absolute;width:0;height:0;border:0;"; document.body.appendChild(iframe); }
+            var msgHandler = function(ev){
+              if(ev.data && (ev.data.ok === true || ev.data.ok === false)){
+                window.removeEventListener("message", msgHandler);
+                if(ev.data.ok) onSuccess(ev.data); else alert("寫入失敗：" + (ev.data.error || "請稍後再試"));
+                done();
+              }
+            };
+            window.addEventListener("message", msgHandler);
+            setTimeout(function(){ window.removeEventListener("message", msgHandler); done(); }, 15000);
+            var f = document.createElement("form");
+            f.method = "POST";
+            f.action = formUrl;
+            f.target = "wishSubmitFrame";
+            f.style.display = "none";
+            var input = document.createElement("input");
+            input.name = "data";
+            input.value = JSON.stringify(payload);
+            f.appendChild(input);
+            document.body.appendChild(f);
+            f.submit();
+            document.body.removeChild(f);
+          });
+      }
       (function(){
         document.getElementById("wishForm").addEventListener("submit", function(e){
           e.preventDefault();
@@ -502,66 +577,29 @@
             note: (form.note && form.note.value) ? form.note.value.trim() : "",
             category: (form.category && form.category.value) ? form.category.value.trim() : "其他",
             link: (form.link && form.link.value) ? form.link.value.trim() : "",
-            region: (form.region && form.region.value) ? form.region.value.trim() : ""
+            region: (form.region && form.region.value) ? form.region.value.trim() : "",
+            image1: (form.image1 && form.image1.value) ? form.image1.value.trim() : "",
+            image2: "",
+            image3: ""
           };
-          if(WISH_SUBMIT_URL){
-            var btn = form.querySelector(".form-submit");
-            if(btn){ btn.disabled = true; btn.textContent = "送出中…"; }
-            function onSuccess(data){
-              if(data && data.ok === false){
-                alert("寫入失敗：" + (data.error || "請稍後再試"));
-                return;
-              }
-              alert("許願已送出");
-              if(formModal) formModal.classList.remove("show");
-              form.reset();
-              wishImageFiles = [];
-              renderUploadPreviews();
-              if(WISH_LIST_URL) loadWishList().then(renderFeed);
-            }
-            function onFail(){
-              alert("送出失敗，請稍後再試或聯絡闆闆。");
-            }
-            function done(){ if(btn){ btn.disabled = false; btn.textContent = "送出許願"; } }
-
-            fetch(WISH_SUBMIT_URL, {
-              method: "POST",
-              headers: { "Content-Type": "text/plain; charset=utf-8" },
-              body: JSON.stringify(payload)
-            })
-              .then(function(res){ return res.json().catch(function(){ return {}; }).then(function(data){ if(!res.ok) return Promise.reject(new Error(data.error || "送出失敗")); return data; }); })
-              .then(function(data){ onSuccess(data); done(); })
-              .catch(function(err){
-                var formUrl = WISH_SUBMIT_URL + (WISH_SUBMIT_URL.indexOf("?") >= 0 ? "&" : "?") + "source=form";
-                var iframe = document.getElementById("wishSubmitFrame");
-                if(!iframe){ iframe = document.createElement("iframe"); iframe.id = "wishSubmitFrame"; iframe.name = "wishSubmitFrame"; iframe.style.cssText = "position:absolute;width:0;height:0;border:0;"; document.body.appendChild(iframe); }
-                var msgHandler = function(ev){
-                  if(ev.data && (ev.data.ok === true || ev.data.ok === false)){
-                    window.removeEventListener("message", msgHandler);
-                    if(ev.data.ok) onSuccess(ev.data); else alert("寫入失敗：" + (ev.data.error || "請稍後再試"));
-                    done();
-                  }
-                };
-                window.addEventListener("message", msgHandler);
-                setTimeout(function(){ window.removeEventListener("message", msgHandler); done(); }, 15000);
-                var f = document.createElement("form");
-                f.method = "POST";
-                f.action = formUrl;
-                f.target = "wishSubmitFrame";
-                f.style.display = "none";
-                var input = document.createElement("input");
-                input.name = "data";
-                input.value = JSON.stringify(payload);
-                f.appendChild(input);
-                document.body.appendChild(f);
-                f.submit();
-                document.body.removeChild(f);
-              })
-              .finally(function(){});
-          } else {
-            alert("尚未設定 API 網址，許願不會寫入試算表。\n\n請在 wish-pool.html 搜尋「WISH_SUBMIT_URL」，在引號內貼上 GAS 部署網址（Apps Script → 部署 → 網路應用程式 的網址）。");
+          if(!WISH_SUBMIT_URL){
+            alert("尚未設定 API 網址，許願不會寫入試算表。\n\n請在 wish-pool.html 搜尋「WISH_SUBMIT_URL」，在引號內貼上 GAS 部署網址。");
             return;
           }
+          var btn = form.querySelector(".form-submit");
+          if(btn){ btn.disabled = true; btn.textContent = "上傳圖片中…"; }
+          uploadWishImages()
+            .then(function(urls){
+              if(urls[0]) payload.image1 = urls[0];
+              if(urls[1]) payload.image2 = urls[1];
+              if(urls[2]) payload.image3 = urls[2];
+              if(btn) btn.textContent = "送出中…";
+              doSubmitWish(payload);
+            })
+            .catch(function(){
+              if(btn) btn.textContent = "送出中…";
+              doSubmitWish(payload);
+            });
         });
       })();
 
