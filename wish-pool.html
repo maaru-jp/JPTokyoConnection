@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>許願池｜MAARU 日本萌GO</title>
+  <style>
+    :root{
+      --bg: #faf8f6;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --text: #111827;
+      --line: #e5e7eb;
+      --wish: #db2777;
+      --wish-light: #fce7f3;
+      --wish-border: rgba(219,39,119,.35);
+      --shadow: 0 4px 20px rgba(0,0,0,.06);
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
+    *{ box-sizing: border-box; margin: 0; padding: 0; }
+    body{
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Segoe UI", sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+    .back{
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 20px; padding: 8px 14px; border-radius: var(--radius-sm);
+      background: var(--card); border: 1px solid var(--line);
+      color: var(--muted); font-size: 14px; font-weight: 800; text-decoration: none;
+      box-shadow: var(--shadow); transition: border-color .2s, color .2s;
+    }
+    .back:hover{ border-color: var(--wish-border); color: var(--wish); }
+
+    .header{
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+      flex-wrap: wrap; margin-bottom: 28px;
+    }
+    .header-left h1{ font-size: 28px; font-weight: 900; margin: 0 0 6px; letter-spacing: .02em; }
+    .header-left .sub{ font-size: 15px; color: var(--muted); font-weight: 800; }
+    .header-actions{ display: flex; gap: 10px; flex-shrink: 0; }
+    .btn{
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 18px; border-radius: 999px; border: none;
+      font-size: 14px; font-weight: 900; text-decoration: none; cursor: pointer;
+      transition: transform .15s, box-shadow .2s;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn-wish{ background: var(--wish); color: #fff; }
+    .btn-wish:hover{ filter: brightness(1.08); }
+    .btn-ghost{ background: var(--card); color: var(--muted); border: 1px solid var(--line); }
+    .btn-ghost:hover{ color: var(--text); border-color: var(--muted); }
+
+    .grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .wish-card{
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+      transition: box-shadow .2s, transform .15s;
+    }
+    .wish-card:hover{ box-shadow: 0 8px 28px rgba(0,0,0,.1); transform: translateY(-2px); }
+    .wish-card .img-wrap{
+      aspect-ratio: 1; background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+      display: flex; align-items: center; justify-content: center; font-size: 48px;
+      color: var(--muted);
+    }
+    .wish-card .img-wrap img{ width: 100%; height: 100%; object-fit: cover; }
+    .wish-card .body{ padding: 14px 16px; flex: 1; display: flex; flex-direction: column; }
+    .wish-card .title{ font-size: 16px; font-weight: 900; margin: 0 0 10px; line-height: 1.35; }
+    .wish-card .tags{ display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .tag{
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;
+    }
+    .tag-cat{ background: #f3f4f6; color: var(--muted); border: 1px solid var(--line); }
+    .tag-status{ background: var(--wish-light); color: var(--wish); border: 1px solid var(--wish-border); }
+    .wish-card .progress{ margin-bottom: 14px; }
+    .wish-card .progress-text{ font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+    .wish-card .progress-bar{
+      height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden;
+    }
+    .wish-card .progress-fill{ height: 100%; border-radius: 999px; background: var(--wish); transition: width .3s; }
+    .wish-card .cta{
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: none;
+      font-size: 14px; font-weight: 900; cursor: pointer; margin-top: auto;
+      transition: filter .2s, transform .1s;
+    }
+    .wish-card .cta.active{ background: var(--wish); color: #fff; }
+    .wish-card .cta.active:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+    .wish-card .cta.done{ background: #f3f4f6; color: var(--muted); cursor: default; }
+
+    .form-card{
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 28px 24px; max-width: 560px;
+    }
+    .modal-form .form-card{ max-height: 85vh; overflow-y: auto; margin: auto; }
+    .modal-form .form-card h2{ position: relative; padding-right: 36px; }
+    .modal-form .form-card .btn-close{
+      position: absolute; top: 0; right: 0; width: 32px; height: 32px;
+      border: none; background: #f3f4f6; border-radius: 999px; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+    }
+    .modal-form .btn-close:hover{ background: var(--line); color: var(--text); }
+    .form-card h2{ font-size: 20px; font-weight: 900; margin: 0 0 20px; text-align: center; }
+    .field{ margin-bottom: 18px; }
+    .field label{ display: block; font-size: 14px; font-weight: 900; margin-bottom: 6px; color: var(--text); }
+    .field input, .field select, .field textarea{
+      width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line);
+      background: #faf8f6; font-size: 14px; font-weight: 800; color: var(--text);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus{
+      outline: none; border-color: var(--wish-border); box-shadow: 0 0 0 3px var(--wish-light);
+    }
+    .field-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .upload-zone{
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    }
+    .upload-box{
+      aspect-ratio: 1; border: 2px dashed var(--line); border-radius: var(--radius-sm);
+      background: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; font-size: 12px; font-weight: 800; color: var(--muted); cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .upload-box:hover{ border-color: var(--wish-border); background: var(--wish-light); }
+    .upload-box .icon{ font-size: 28px; opacity: .7; }
+    .upload-box.has-img{ padding: 0; overflow: hidden; position: relative; }
+    .upload-box .preview-img{ width: 100%; height: 100%; object-fit: cover; display: block; aspect-ratio: 1; }
+    .upload-box .remove-img{
+      position: absolute; top: 4px; right: 4px; width: 24px; height: 24px;
+      border: none; border-radius: 999px; background: rgba(0,0,0,.5); color: #fff;
+      font-size: 14px; line-height: 1; cursor: pointer; display: none;
+    }
+    .upload-box.has-img .remove-img{ display: flex; align-items: center; justify-content: center; }
+    .upload-box.has-img .upload-label{ display: none; }
+    .form-submit{
+      width: 100%; margin-top: 24px; padding: 14px; border-radius: var(--radius-sm); border: none;
+      background: var(--wish); color: #fff; font-size: 16px; font-weight: 900; cursor: pointer;
+      transition: filter .2s, transform .1s;
+    }
+    .form-submit:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+
+    .feed-section{ margin-top: 32px; }
+    .feed-card{
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 20px 20px;
+    }
+    .feed-card h3{ font-size: 16px; font-weight: 900; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+    .feed-list{ list-style: none; }
+    .feed-list li{
+      padding: 10px 12px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 800;
+      color: var(--text); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .feed-list li:last-child{ border-bottom: none; }
+    .feed-list .time{ color: var(--muted); font-size: 12px; }
+    .feed-list .who{ color: var(--wish); }
+    .modal-wrap{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .modal-wrap.show{ display: flex; }
+    .modal-form.show{ display: flex; }
+    .modal{
+      background: var(--card); border-radius: var(--radius); padding: 24px; max-width: 360px; width: 100%;
+      box-shadow: 0 20px 50px rgba(0,0,0,.2);
+    }
+    .modal h4{ margin: 0 0 12px; font-size: 16px; }
+    .modal p{ font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+    .modal input{ width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); font-size: 14px; margin-bottom: 14px; }
+    .modal-actions{ display: flex; gap: 10px; }
+    .modal-actions button{ flex: 1; padding: 10px; border-radius: var(--radius-sm); border: none; font-weight: 900; cursor: pointer; }
+    .modal-actions .btn-skip{ background: #f3f4f6; color: var(--muted); }
+    .modal-actions .btn-ok{ background: var(--wish); color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="index.html" class="back">← 回預告頁</a>
+
+    <header class="header">
+      <div class="header-left">
+        <h1>許願池</h1>
+        <p class="sub">說出你的願望，大家幫你實現</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn btn-wish" id="btnLaunch">＋ 發起許願</button>
+        <button type="button" class="btn btn-ghost" id="btnAdmin">🔒 管理員登入</button>
+      </div>
+    </header>
+
+    <div class="grid" id="wishGrid">
+      <div class="wish-card" data-id="1">
+        <div class="img-wrap">🫘</div>
+        <div class="body">
+          <h3 class="title">吉伊卡哇鯛魚燒</h3>
+          <div class="tags">
+            <span class="tag tag-cat">◆ 角色周邊</span>
+            <span class="tag tag-status">許願中</span>
+          </div>
+          <div class="progress">
+            <div class="progress-text">❤️ <span class="count">15</span>/<span class="total">50</span> 集氣</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+          </div>
+          <button type="button" class="cta active" data-id="1">❤️ 我也想要 (+1 集氣)</button>
+        </div>
+      </div>
+      <div class="wish-card" data-id="2">
+        <div class="img-wrap">⚾</div>
+        <div class="body">
+          <h3 class="title">三麗鷗 TAITO 棒球系列一番賞 880 日圓</h3>
+          <div class="tags">
+            <span class="tag tag-cat">◆ 角色周邊</span>
+            <span class="tag tag-status">許願中</span>
+          </div>
+          <div class="progress">
+            <div class="progress-text">❤️ <span class="count">22</span>/<span class="total">50</span> 集氣</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:44%"></div></div>
+          </div>
+          <button type="button" class="cta done" data-id="2">❤️ 你已經集氣過囉</button>
+        </div>
+      </div>
+      <div class="wish-card" data-id="3">
+        <div class="img-wrap">🐰</div>
+        <div class="body">
+          <h3 class="title">吉伊卡哇 川越 烏薩奇犬張子</h3>
+          <div class="tags">
+            <span class="tag tag-cat">◆ 角色周邊</span>
+            <span class="tag tag-status">許願中</span>
+          </div>
+          <div class="progress">
+            <div class="progress-text">❤️ <span class="count">8</span>/<span class="total">50</span> 集氣</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:16%"></div></div>
+          </div>
+          <button type="button" class="cta active" data-id="3">❤️ 我也想要 (+1 集氣)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-wrap modal-form" id="formModal">
+      <div class="form-card" onclick="event.stopPropagation()">
+        <h2>發起許願 <button type="button" class="btn-close" id="formModalClose" aria-label="關閉">×</button></h2>
+        <form id="wishForm">
+          <div class="field">
+            <label>想要什麼商品（必填）</label>
+            <input type="text" name="title" placeholder="輸入商品名稱或描述" required />
+          </div>
+          <div class="field">
+            <label>圖片（最多 3 張）</label>
+            <input type="file" id="wishImageInput" accept="image/*" multiple style="display:none" />
+            <div class="upload-zone" id="uploadZone">
+              <div class="upload-box" data-slot="0"><span class="upload-label"><span class="icon">🖼️</span>點擊或拖曳上傳 圖片</span></div>
+              <div class="upload-box" data-slot="1"><span class="upload-label"><span class="icon">🖼️</span>點擊或拖曳上傳 圖片</span></div>
+              <div class="upload-box" data-slot="2"><span class="upload-label"><span class="icon">🖼️</span>點擊或拖曳上傳 圖片</span></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>規格／備註（可選）</label>
+            <textarea name="note" rows="2" placeholder="尺寸、數量、顏色等"></textarea>
+          </div>
+          <div class="field">
+            <label>商品連結（可選）</label>
+            <input type="url" name="link" placeholder="https://..." />
+          </div>
+          <div class="field">
+            <label>地區／店家（可選）</label>
+            <input type="text" name="region" placeholder="例如：東京、大阪" />
+          </div>
+          <div class="field">
+            <label>商品類別（可選）</label>
+            <select name="category">
+              <option>其他</option>
+              <option>角色周邊</option>
+              <option>服飾</option>
+              <option>食品</option>
+              <option>雜貨</option>
+            </select>
+          </div>
+          <button type="submit" class="form-submit">送出許願</button>
+        </form>
+      </div>
+    </div>
+
+    <section class="feed-section">
+      <div class="feed-card">
+        <h3>❤️ 集氣動態</h3>
+        <p style="font-size:13px; color:var(--muted); margin:-8px 0 12px;">大家對許願的 +1 會顯示在這裡，闆闆與顧客都能看到</p>
+        <ul class="feed-list" id="supportFeed">
+          <li><span class="time">示範</span> 有人 對 《吉伊卡哇鯛魚燒》+1 集氣</li>
+          <li><span class="time">示範</span> 小美 對 《三麗鷗一番賞》+1 集氣</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-wrap" id="nickModal">
+    <div class="modal">
+      <h4>要顯示您的暱稱嗎？（選填）</h4>
+      <p>填寫後會出現在「集氣動態」，方便闆闆與大家看到是誰在集氣</p>
+      <input type="text" id="nickInput" placeholder="例：小美、匿名" maxlength="20" />
+      <div class="modal-actions">
+        <button type="button" class="btn-skip" id="modalSkip">略過</button>
+        <button type="button" class="btn-ok" id="modalOk">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var TOTAL = 50;
+      var STORAGE_KEY = "wish_pool_supports";
+      var STORAGE_COUNT = "wish_pool_counts";
+
+      // 後端串接：許願「列表」從這裡讀（GET），回傳格式見 許願池後端串接說明.md。圖片用 Sheet 的 image1 網址。
+      var WISH_LIST_URL = "";
+
+      function getCounts(){
+        try {
+          var raw = localStorage.getItem(STORAGE_COUNT);
+          return raw ? JSON.parse(raw) : { "1": 15, "2": 22, "3": 8 };
+        } catch(e) { return { "1": 15, "2": 22, "3": 8 }; }
+      }
+      function saveCounts(o){
+        try { localStorage.setItem(STORAGE_COUNT, JSON.stringify(o)); } catch(e) {}
+      }
+      function getFeed(){
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : [];
+        } catch(e) { return []; }
+      }
+      function addToFeed(wishId, title, nick){
+        var feed = getFeed();
+        feed.unshift({
+          wishId: wishId,
+          title: title,
+          nick: nick || "有人",
+          time: Date.now()
+        });
+        feed = feed.slice(0, 30);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(feed)); } catch(e) {}
+        renderFeed();
+      }
+      function formatTime(t){
+        var diff = (Date.now() - t) / 1000;
+        if(diff < 60) return "剛剛";
+        if(diff < 3600) return Math.floor(diff/60) + " 分鐘前";
+        if(diff < 86400) return Math.floor(diff/3600) + " 小時前";
+        var d = new Date(t);
+        return (d.getMonth()+1) + "/" + d.getDate();
+      }
+      function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+      function renderWishCard(w){
+        var id = String(w.id || "");
+        var title = escapeHtml(w.title || "許願");
+        var category = escapeHtml(w.category || "其他");
+        var status = escapeHtml(w.status || "許願中");
+        var count = parseInt(w.supportCount, 10) || 0;
+        var imgHtml = w.image1 ? "<img src=\"" + escapeHtml(w.image1) + "\" alt=\"\" />" : "🫘";
+        return "<div class=\"wish-card\" data-id=\"" + escapeHtml(id) + "\">" +
+          "<div class=\"img-wrap\">" + imgHtml + "</div>" +
+          "<div class=\"body\">" +
+          "<h3 class=\"title\">" + title + "</h3>" +
+          "<div class=\"tags\"><span class=\"tag tag-cat\">◆ " + category + "</span><span class=\"tag tag-status\">" + status + "</span></div>" +
+          "<div class=\"progress\"><div class=\"progress-text\">❤️ <span class=\"count\">" + count + "</span>/<span class=\"total\">" + TOTAL + "</span> 集氣</div>" +
+          "<div class=\"progress-bar\"><div class=\"progress-fill\" style=\"width:" + Math.min(100, (count / TOTAL * 100)) + "%\"></div></div></div>" +
+          "<button type=\"button\" class=\"cta active\">❤️ 我也想要 (+1 集氣)</button></div></div>";
+      }
+      function bindWishCardButtons(){
+        document.querySelectorAll(".wish-card .cta.active").forEach(function(btn){
+          btn.addEventListener("click", function(){
+            var card = this.closest(".wish-card");
+            var wishId = card.getAttribute("data-id");
+            var title = card.querySelector(".title");
+            var titleText = title ? title.textContent.trim() : "許願";
+            var votedKey = "wish_voted_" + wishId;
+            if(localStorage.getItem(votedKey)){
+              this.classList.remove("active");
+              this.classList.add("done");
+              this.textContent = "❤️ 你已經集氣過囉";
+              this.disabled = true;
+              return;
+            }
+            openNickModal(wishId, titleText, function(){
+              try { localStorage.setItem(votedKey, "1"); } catch(e) {}
+            });
+          });
+        });
+      }
+      function applyCountsToCards(){
+        var counts = getCounts();
+        document.querySelectorAll(".wish-card").forEach(function(card){
+          var id = card.getAttribute("data-id");
+          if(id && counts[id] != null) updateCardUI(id, counts[id]);
+        });
+      }
+      function loadWishList(){
+        if(!WISH_LIST_URL) return Promise.resolve();
+        var grid = document.getElementById("wishGrid");
+        if(!grid) return Promise.resolve();
+        return fetch(WISH_LIST_URL)
+          .then(function(res){ return res.ok ? res.json() : Promise.reject(new Error("無法載入許願列表")); })
+          .then(function(data){
+            var list = (data && data.wishes) ? data.wishes : [];
+            if(list.length === 0) return;
+            var counts = getCounts();
+            list.forEach(function(w){
+              var id = String(w.id || "");
+              if(counts[id] == null) counts[id] = parseInt(w.supportCount, 10) || 0;
+            });
+            saveCounts(counts);
+            grid.innerHTML = list.map(renderWishCard).join("");
+            bindWishCardButtons();
+            applyCountsToCards();
+          })
+          .catch(function(err){ console.warn("許願列表載入失敗，顯示預設卡片", err); });
+      }
+
+      function renderFeed(){
+        var feed = getFeed();
+        var el = document.getElementById("supportFeed");
+        if(!el) return;
+        if(feed.length === 0){
+          el.innerHTML = "<li style='color:var(--muted);'>尚無集氣紀錄，按「我也想要」即可出現在這裡</li>";
+          return;
+        }
+        el.innerHTML = feed.map(function(x){
+          var timeStr = formatTime(x.time);
+          return "<li><span class='time'>" + timeStr + "</span> <span class='who'>" + escapeHtml(x.nick) + "</span> 對 《" + escapeHtml(x.title) + "》+1 集氣</li>";
+        }).join("");
+      }
+
+      var formModal = document.getElementById("formModal");
+      var btnLaunch = document.getElementById("btnLaunch");
+      var btnAdmin = document.getElementById("btnAdmin");
+      var nickModal = document.getElementById("nickModal");
+      var nickInput = document.getElementById("nickInput");
+      var modalSkip = document.getElementById("modalSkip");
+      var modalOk = document.getElementById("modalOk");
+      var pendingSupport = null;
+
+      var formModalClose = document.getElementById("formModalClose");
+      if(btnLaunch){
+        btnLaunch.addEventListener("click", function(){
+          if(formModal) formModal.classList.add("show");
+        });
+      }
+      if(formModalClose){
+        formModalClose.addEventListener("click", function(){
+          if(formModal) formModal.classList.remove("show");
+        });
+      }
+      if(formModal){
+        formModal.addEventListener("click", function(e){
+          if(e.target === formModal) formModal.classList.remove("show");
+        });
+      }
+      if(btnAdmin){ btnAdmin.addEventListener("click", function(){ alert("管理員功能尚未開放"); }); }
+
+      (function(){
+        // 後端串接：送出許願表單（POST）。顧客輸入的所有欄位會以 JSON 送出，由後端集中寫入 Sheet。詳見 許願池後端串接說明.md
+        var WISH_SUBMIT_URL = "";
+        document.getElementById("wishForm").addEventListener("submit", function(e){
+          e.preventDefault();
+          var form = this;
+          var payload = {
+            title: (form.title && form.title.value) ? form.title.value.trim() : "",
+            note: (form.note && form.note.value) ? form.note.value.trim() : "",
+            category: (form.category && form.category.value) ? form.category.value.trim() : "其他",
+            link: (form.link && form.link.value) ? form.link.value.trim() : "",
+            region: (form.region && form.region.value) ? form.region.value.trim() : ""
+          };
+          if(WISH_SUBMIT_URL){
+            var btn = form.querySelector(".form-submit");
+            if(btn){ btn.disabled = true; btn.textContent = "送出中…"; }
+            fetch(WISH_SUBMIT_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            })
+              .then(function(res){ return res.ok ? res.json().catch(function(){ return {}; }) : Promise.reject(new Error("送出失敗")); })
+              .then(function(){
+                alert("許願已送出");
+                if(formModal) formModal.classList.remove("show");
+                form.reset();
+                wishImageFiles = [];
+                renderUploadPreviews();
+              })
+              .catch(function(err){
+                alert("送出失敗，請稍後再試或聯絡闆闆");
+                console.error(err);
+              })
+              .finally(function(){
+                if(btn){ btn.disabled = false; btn.textContent = "送出許願"; }
+              });
+          } else {
+            alert("許願已送出");
+            if(formModal) formModal.classList.remove("show");
+          }
+        });
+      })();
+
+      var wishImageInput = document.getElementById("wishImageInput");
+      var uploadZone = document.getElementById("uploadZone");
+      var wishImageFiles = [];
+      function renderUploadPreviews(){
+        var boxes = document.querySelectorAll("#uploadZone .upload-box");
+        boxes.forEach(function(box, i){
+          var slot = i;
+          var existing = box.querySelector(".preview-img");
+          var removeBtn = box.querySelector(".remove-img");
+          if(existing) existing.remove();
+          if(removeBtn) removeBtn.remove();
+          if(wishImageFiles[slot]){
+            box.classList.add("has-img");
+            var img = document.createElement("img");
+            img.className = "preview-img";
+            img.alt = "預覽";
+            if(wishImageFiles[slot].url) img.src = wishImageFiles[slot].url;
+            box.appendChild(img);
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "remove-img";
+            btn.innerHTML = "×";
+            btn.setAttribute("aria-label", "移除圖片");
+            btn.addEventListener("click", function(ev){ ev.stopPropagation(); removeImage(slot); });
+            box.appendChild(btn);
+          } else {
+            box.classList.remove("has-img");
+          }
+        });
+      }
+      function addImages(files){
+        if(!files || !files.length) return;
+        for(var i = 0; i < files.length && wishImageFiles.length < 3; i++){
+          if(!files[i].type.match(/^image\//)) continue;
+          var slot = wishImageFiles.length;
+          wishImageFiles.push({ file: files[i], url: URL.createObjectURL(files[i]) });
+        }
+        wishImageFiles = wishImageFiles.slice(0, 3);
+        renderUploadPreviews();
+      }
+      function removeImage(slot){
+        if(wishImageFiles[slot] && wishImageFiles[slot].url) URL.revokeObjectURL(wishImageFiles[slot].url);
+        wishImageFiles.splice(slot, 1);
+        wishImageFiles = wishImageFiles.slice(0, 3);
+        renderUploadPreviews();
+      }
+      if(wishImageInput){
+        wishImageInput.addEventListener("change", function(){
+          addImages(this.files);
+          this.value = "";
+        });
+      }
+      if(uploadZone){
+        uploadZone.addEventListener("click", function(e){
+          if(e.target.closest(".remove-img")) return;
+          if(wishImageInput) wishImageInput.click();
+        });
+        uploadZone.addEventListener("dragover", function(e){ e.preventDefault(); e.stopPropagation(); uploadZone.style.background = "var(--wish-light)"; });
+        uploadZone.addEventListener("dragleave", function(e){ e.preventDefault(); uploadZone.style.background = ""; });
+        uploadZone.addEventListener("drop", function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.style.background = "";
+          addImages(e.dataTransfer.files);
+        });
+      }
+
+      function doSupport(wishId, title, nick){
+        var counts = getCounts();
+        var n = (counts[wishId] || 0) + 1;
+        if(n > TOTAL) n = TOTAL;
+        counts[wishId] = n;
+        saveCounts(counts);
+        addToFeed(wishId, title, nick || "有人");
+        updateCardUI(wishId, n);
+      }
+      function updateCardUI(wishId, n){
+        var card = document.querySelector(".wish-card[data-id='" + wishId + "']");
+        if(!card) return;
+        var countEl = card.querySelector(".progress .count");
+        var fillEl = card.querySelector(".progress-fill");
+        var totalEl = card.querySelector(".progress .total");
+        var total = totalEl ? parseInt(totalEl.textContent, 10) : TOTAL;
+        if(countEl) countEl.textContent = n;
+        if(fillEl) fillEl.style.width = (n / total * 100) + "%";
+        var cta = card.querySelector(".cta");
+        if(cta){
+          cta.classList.remove("active");
+          cta.classList.add("done");
+          cta.textContent = "❤️ 你已經集氣過囉";
+          cta.disabled = true;
+        }
+      }
+      function openNickModal(wishId, title, cb){
+        pendingSupport = { wishId: wishId, title: title, cb: cb };
+        if(nickInput) nickInput.value = "";
+        if(nickModal) nickModal.classList.add("show");
+      }
+      function closeNickModal(){
+        if(nickModal) nickModal.classList.remove("show");
+        pendingSupport = null;
+      }
+      function submitNick(){
+        var nick = nickInput ? nickInput.value.trim() : "";
+        if(pendingSupport){
+          doSupport(pendingSupport.wishId, pendingSupport.title, nick || null);
+          if(pendingSupport.cb) pendingSupport.cb();
+        }
+        closeNickModal();
+      }
+      if(modalSkip){ modalSkip.addEventListener("click", function(){ submitNick(); }); }
+      if(modalOk){ modalOk.addEventListener("click", submitNick); }
+
+      if(WISH_LIST_URL){
+        loadWishList().then(renderFeed);
+      } else {
+        bindWishCardButtons();
+        applyCountsToCards();
+        renderFeed();
+      }
+    })();
+  </script>
+</body>
+</html>

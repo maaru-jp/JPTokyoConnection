@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>東京連線行程表（概略）</title>
+  <style>
+    :root{
+      --bg: #f3f4ff;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: #7aa7ff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Noto Sans JP","Segoe UI",system-ui,sans-serif;
+      background:
+        radial-gradient(circle at top left,#ffe6f4 0,transparent 45%),
+        radial-gradient(circle at bottom right,#e0f2fe 0,transparent 55%),
+        var(--bg);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:24px 12px;
+      color:#111827;
+    }
+    .page{
+      width:100%;
+      max-width:960px;
+      background:linear-gradient(145deg,#ffffff,#f9fbff);
+      border-radius:24px;
+      box-shadow:0 18px 42px rgba(15,23,42,.12);
+      border:1px solid rgba(255,255,255,.9);
+      padding:20px 18px 22px;
+    }
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      padding-bottom:12px;
+      border-bottom:1px dashed rgba(148,163,184,.6);
+      margin-bottom:12px;
+    }
+    .title-main{font-size:1.1rem;font-weight:700;}
+    .title-sub{font-size:.82rem;color:var(--muted);margin-top:4px;}
+    .tagline{
+      font-size:.8rem;
+      color:var(--muted);
+      text-align:right;
+    }
+    .tag-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid rgba(129,140,248,.6);
+      font-size:.76rem;
+      color:#1d4ed8;
+      margin-bottom:4px;
+    }
+    .dot{
+      width:7px;height:7px;border-radius:999px;
+      background:radial-gradient(circle at 30% 0%,#fbbf24,#f97316);
+    }
+    .meta-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:10px 0 4px;
+      font-size:.78rem;
+      color:var(--muted);
+    }
+    .meta-label{font-weight:600;color:#374151;}
+
+    .card{
+      margin-top:10px;
+      border-radius:18px;
+      background:var(--card);
+      border:1px solid rgba(226,232,240,.9);
+      padding:12px 16px 10px;
+    }
+    .section h2{margin:0 0 4px;font-size:1rem;}
+    .section p{margin:0 0 10px;font-size:.82rem;color:var(--muted);}
+
+    .timeline{padding:2px 0 4px;}
+    .day{
+      display:grid;
+      grid-template-columns:90px minmax(0,1fr);
+      gap:12px;
+      padding:10px 0;
+      border-top:1px solid rgba(148,163,184,.25);
+      font-size:.82rem;
+    }
+    .day:first-child{border-top:none;}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:90px;
+      padding:8px 10px;
+      border-radius:14px;
+      font-weight:900;
+      background:rgba(122,167,255,.14);
+      border:1px solid rgba(122,167,255,.30);
+      color:#1b2a4a;
+      font-size:.8rem;
+    }
+    .day h4{margin:0;font-size:.9rem;}
+    .day ul{margin:6px 0 0;padding-left:16px;color:var(--muted);font-size:.8rem;}
+    .tagrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+    .tag{
+      display:inline-flex;align-items:center;
+      padding:4px 9px;border-radius:999px;
+      font-size:.74rem;font-weight:700;
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(148,163,184,.4);
+      color:var(--muted);
+    }
+    .back-link{
+      font-size:.8rem;
+      margin-top:6px;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      color:#1d4ed8;
+      text-decoration:none;
+    }
+    footer{
+      margin-top:10px;
+      padding-top:8px;
+      border-top:1px dashed rgba(148,163,184,.6);
+      font-size:.72rem;
+      color:#9ca3af;
+    }
+    @media (max-width:768px){
+      body{padding:18px 10px 20px;}
+      .page{border-radius:20px;padding:16px 12px 20px;}
+      header{flex-direction:column;align-items:flex-start;}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="title-main">東京連線行程表（概略）</div>
+        <div class="title-sub">每天大概在哪裡、什麼時段可能會連線，給客人一個心理準備。</div>
+        <div class="meta-row">
+          <div><span class="meta-label">行程區間：</span><span id="tripRange"></span></div>
+          <div><span class="meta-label">預計連線日：</span><span id="liveDays"></span></div>
+        </div>
+        <a href="index.html" class="back-link">← 回到代購首頁</a>
+      </div>
+      <div class="tagline">
+        <div class="tag-pill">
+          <span class="dot"></span>
+          以實際當天公告與現場狀況為主
+        </div>
+        <div>此表為概略規劃，用來抓大方向與大致連線時段。</div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="section">
+        <h2>本次東京行程規劃</h2>
+        <p>下方資訊會自動帶入跟首頁相同的行程設定，你只要改首頁 `CONFIG` 裡的行程資料，這一頁也會同步更新。</p>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <footer>
+      本頁僅為行程概略說明，實際行程可能會依天氣、交通與現場狀況微調。
+    </footer>
+  </div>
+
+  <script>
+    // 與首頁相同的行程資料（可視需要維持同步）
+    const CONFIG = {
+      tripRangeText: "2026/04/26 – 2026/05/04（9天）",
+      liveDaysText: "Day 3、Day 6（暫定，日本時間晚間 20:00 左右）",
+      itinerary: [
+        { day: "Day 1", title: "出發日｜抵達＆交通移動", items: ["抵達/交通移動", "踩點（不一定連線）"], tags:["移動日"] },
+        { day: "Day 2", title: "巡點日｜確認品項", items: ["門市/商場巡點", "確認可買清單與限購規則"], tags:["踩點","確認"] },
+        { day: "Day 3", title: "連線代購 Day（暫定）", items: ["白天採買", "晚間連線收單＋回覆"], tags:["連線","採買"] },
+        { day: "Day 4", title: "小旅行｜放風日", items: ["景點/散步/咖啡", "視情況補貨巡點"], tags:["旅行"] },
+        { day: "Day 5", title: "追加巡點", items: ["追加採買（視現場）", "整理未成單/缺貨回報"], tags:["追加","整理"] },
+        { day: "Day 6", title: "連線代購 Day（暫定）", items: ["白天追加採買", "晚間連線確認/收尾"], tags:["連線","收尾"] },
+        { day: "Day 7", title: "彈性日", items: ["補缺/找貨/行程彈性", "必要時短連線"], tags:["彈性"] },
+        { day: "Day 8", title: "整理日", items: ["整理清單/收尾", "準備返程"], tags:["整理"] },
+        { day: "Day 9", title: "回台日", items: ["返程移動", "回台後公告出貨/付款節點"], tags:["返程","公告"] },
+      ],
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function renderItinerary(){
+      const trip = $("#tripRange");
+      const live = $("#liveDays");
+      if(trip) trip.textContent = CONFIG.tripRangeText;
+      if(live) live.textContent = CONFIG.liveDaysText;
+      const el = $("#timeline");
+      if(!el) return;
+      el.innerHTML = CONFIG.itinerary.map(d => `
+        <div class="day">
+          <div class="badge">${d.day}</div>
+          <div>
+            <h4>${d.title}</h4>
+            <ul>${d.items.map(x=>`<li>${x}</li>`).join("")}</ul>
+            <div class="tagrow">${(d.tags||[]).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    renderItinerary();
+  </script>
+</body>
+</html>
+
