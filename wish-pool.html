@@ -365,12 +365,13 @@
       function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
       function renderWishCard(w){
-        var id = String(w.id || "");
+        var id = String(w.id != null ? w.id : "");
         var title = escapeHtml(w.title || "許願");
         var category = escapeHtml(w.category || "其他");
         var status = escapeHtml(w.status || "許願中");
         var count = parseInt(w.supportCount, 10) || 0;
-        var imgHtml = w.image1 ? "<img src=\"" + escapeHtml(w.image1) + "\" alt=\"\" />" : "🫘";
+        var imgUrl = (w.image1 != null && String(w.image1).trim() !== "") ? String(w.image1).trim() : "";
+        var imgHtml = imgUrl ? "<img src=\"" + escapeHtml(imgUrl) + "\" alt=\"\" referrerpolicy=\"no-referrer\" loading=\"lazy\" onerror=\"this.style.display=\\'none\\'; this.parentElement.innerHTML=\\'🫘\\';\" />" : "🫘";
         return "<div class=\"wish-card\" data-id=\"" + escapeHtml(id) + "\">" +
           "<div class=\"img-wrap\">" + imgHtml + "</div>" +
           "<div class=\"body\">" +
@@ -500,23 +501,61 @@
 
       function uploadWishImages(){
         var uploadUrl = WISH_SUBMIT_URL + (WISH_SUBMIT_URL.indexOf("?") >= 0 ? "&" : "?") + "action=uploadImage";
-        var list = [];
+        var formUploadUrl = uploadUrl + (uploadUrl.indexOf("?") >= 0 ? "&" : "?") + "source=form";
+        var maxSize = 2500000;
+        var maxFormSize = 800000;
+
         function uploadOne(slot){
           return new Promise(function(resolve){
             if(!wishImageFiles[slot] || !wishImageFiles[slot].file){ resolve(""); return; }
             var fr = new FileReader();
             fr.onload = function(){
               var dataUrl = fr.result;
-              if(dataUrl.length > 2600000){ resolve(""); return; }
+              if(dataUrl.length > maxSize){ resolve(""); return; }
               fetch(uploadUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: dataUrl }) })
                 .then(function(r){ return r.json().catch(function(){ return {}; }); })
                 .then(function(d){ resolve(d.ok && d.url ? d.url : ""); })
-                .catch(function(){ resolve(""); });
+                .catch(function(){
+                  if(dataUrl.length <= maxFormSize) uploadByForm(dataUrl, resolve);
+                  else resolve("");
+                });
             };
             fr.readAsDataURL(wishImageFiles[slot].file);
           });
         }
-        return Promise.all([ uploadOne(0), uploadOne(1), uploadOne(2) ]);
+
+        function uploadByForm(dataUrl, resolve){
+          var iframe = document.getElementById("wishUploadFrame");
+          if(!iframe){ iframe = document.createElement("iframe"); iframe.id = "wishUploadFrame"; iframe.name = "wishUploadFrame"; iframe.style.cssText = "position:absolute;width:0;height:0;border:0;"; document.body.appendChild(iframe); }
+          var handler = function(ev){
+            if(ev.data && ev.data.upload === true){
+              window.removeEventListener("message", handler);
+              resolve(ev.data.url || "");
+            }
+          };
+          window.addEventListener("message", handler);
+          setTimeout(function(){ window.removeEventListener("message", handler); resolve(""); }, 25000);
+          var f = document.createElement("form");
+          f.method = "POST";
+          f.action = formUploadUrl;
+          f.target = "wishUploadFrame";
+          f.style.display = "none";
+          var input = document.createElement("input");
+          input.name = "image";
+          input.value = dataUrl;
+          f.appendChild(input);
+          document.body.appendChild(f);
+          f.submit();
+          document.body.removeChild(f);
+        }
+
+        return uploadOne(0).then(function(u0){
+          return uploadOne(1).then(function(u1){
+            return uploadOne(2).then(function(u2){
+              return [u0, u1, u2];
+            });
+          });
+        });
       }
       function doSubmitWish(payload){
         var btn = document.querySelector("#wishForm .form-submit");
@@ -593,6 +632,12 @@
               if(urls[0]) payload.image1 = urls[0];
               if(urls[1]) payload.image2 = urls[1];
               if(urls[2]) payload.image3 = urls[2];
+              var hadFiles = wishImageFiles.some(function(x){ return x && x.file; });
+              if(hadFiles && !payload.image1 && !payload.image2 && !payload.image3){
+                if(!payload.image1 && document.getElementById("wishForm").image1 && !document.getElementById("wishForm").image1.value){
+                  alert("圖片上傳未成功（可能被瀏覽器阻擋）。\n\n請改在「或貼主圖網址」欄位貼上圖片連結，或稍後在試算表 image1 欄手動貼網址。");
+                }
+              }
               if(btn) btn.textContent = "送出中…";
               doSubmitWish(payload);
             })

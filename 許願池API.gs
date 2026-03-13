@@ -119,21 +119,30 @@ function _postResponse(obj, asHtml) {
 }
 
 /**
- * 上傳圖片：POST body 為 { image: "data:image/jpeg;base64,..." }，存到 Drive「許願池圖片」資料夾，回傳 { ok: true, url: "..." }
+ * 上傳圖片：接受 (1) POST body JSON { image: "data:image/...;base64,..." } 或 (2) 表單 source=form 且參數 image= dataURL
  */
 function _handleImageUpload(e) {
-  try {
-    if (!e.postData || !e.postData.contents) {
-      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "沒有圖片資料" })).setMimeType(ContentService.MimeType.JSON);
+  var dataUrl = "";
+  var returnHtml = (e.parameter && e.parameter.source === "form");
+
+  if (e.parameter && e.parameter.source === "form" && e.parameter.image) {
+    dataUrl = e.parameter.image;
+  } else if (e.postData && e.postData.contents) {
+    try {
+      var body = JSON.parse(e.postData.contents);
+      dataUrl = body.image || "";
+    } catch (err) {
+      return _uploadResponse({ ok: false, error: "格式錯誤" }, returnHtml);
     }
-    var body = JSON.parse(e.postData.contents);
-    var dataUrl = body.image || "";
-    if (dataUrl.indexOf("base64,") === -1) {
-      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "圖片格式錯誤" })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  try {
+    if (!dataUrl || dataUrl.indexOf("base64,") === -1) {
+      return _uploadResponse({ ok: false, error: "圖片格式錯誤" }, returnHtml);
     }
     var base64 = dataUrl.split("base64,")[1];
     if (!base64) {
-      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "圖片格式錯誤" })).setMimeType(ContentService.MimeType.JSON);
+      return _uploadResponse({ ok: false, error: "圖片格式錯誤" }, returnHtml);
     }
     var mime = "image/jpeg";
     var ext = "jpg";
@@ -144,11 +153,22 @@ function _handleImageUpload(e) {
     var folder = _getOrCreateWishFolder();
     var file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    var url = "https://drive.google.com/uc?export=view&id=" + file.getId();
-    return ContentService.createTextOutput(JSON.stringify({ ok: true, url: url })).setMimeType(ContentService.MimeType.JSON);
+    var fid = file.getId();
+    var url = "https://drive.google.com/thumbnail?id=" + fid + "&sz=w800";
+    return _uploadResponse({ ok: true, url: url }, returnHtml);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+    return _uploadResponse({ ok: false, error: err.toString() }, returnHtml);
   }
+}
+
+function _uploadResponse(obj, asHtml) {
+  if (asHtml) {
+    var payload = { upload: true, ok: obj.ok, url: obj.url || "", error: obj.error || "" };
+    var script = "window.parent.postMessage(" + JSON.stringify(payload) + ", '*');";
+    var html = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body><script>" + script + "<\/script><\/body><\/html>";
+    return ContentService.createTextOutput(html).setMimeType(ContentService.MimeType.HTML);
+  }
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function _getOrCreateWishFolder() {
