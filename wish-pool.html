@@ -507,31 +507,57 @@
           if(WISH_SUBMIT_URL){
             var btn = form.querySelector(".form-submit");
             if(btn){ btn.disabled = true; btn.textContent = "送出中…"; }
+            function onSuccess(data){
+              if(data && data.ok === false){
+                alert("寫入失敗：" + (data.error || "請稍後再試"));
+                return;
+              }
+              alert("許願已送出");
+              if(formModal) formModal.classList.remove("show");
+              form.reset();
+              wishImageFiles = [];
+              renderUploadPreviews();
+              if(WISH_LIST_URL) loadWishList().then(renderFeed);
+            }
+            function onFail(){
+              alert("送出失敗，請稍後再試或聯絡闆闆。");
+            }
+            function done(){ if(btn){ btn.disabled = false; btn.textContent = "送出許願"; } }
+
             fetch(WISH_SUBMIT_URL, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "text/plain; charset=utf-8" },
               body: JSON.stringify(payload)
             })
               .then(function(res){ return res.json().catch(function(){ return {}; }).then(function(data){ if(!res.ok) return Promise.reject(new Error(data.error || "送出失敗")); return data; }); })
-              .then(function(data){
-                if(data && data.ok === false){
-                  alert("寫入失敗：" + (data.error || "請稍後再試"));
-                  return;
-                }
-                alert("許願已送出");
-                if(formModal) formModal.classList.remove("show");
-                form.reset();
-                wishImageFiles = [];
-                renderUploadPreviews();
-                if(WISH_LIST_URL) loadWishList().then(renderFeed);
-              })
+              .then(function(data){ onSuccess(data); done(); })
               .catch(function(err){
-                alert("送出失敗，請稍後再試或聯絡闆闆。若已設定 API 網址，請確認 GAS 已部署為「任何人」並完成授權。");
-                console.error(err);
+                var formUrl = WISH_SUBMIT_URL + (WISH_SUBMIT_URL.indexOf("?") >= 0 ? "&" : "?") + "source=form";
+                var iframe = document.getElementById("wishSubmitFrame");
+                if(!iframe){ iframe = document.createElement("iframe"); iframe.id = "wishSubmitFrame"; iframe.name = "wishSubmitFrame"; iframe.style.cssText = "position:absolute;width:0;height:0;border:0;"; document.body.appendChild(iframe); }
+                var msgHandler = function(ev){
+                  if(ev.data && (ev.data.ok === true || ev.data.ok === false)){
+                    window.removeEventListener("message", msgHandler);
+                    if(ev.data.ok) onSuccess(ev.data); else alert("寫入失敗：" + (ev.data.error || "請稍後再試"));
+                    done();
+                  }
+                };
+                window.addEventListener("message", msgHandler);
+                setTimeout(function(){ window.removeEventListener("message", msgHandler); done(); }, 15000);
+                var f = document.createElement("form");
+                f.method = "POST";
+                f.action = formUrl;
+                f.target = "wishSubmitFrame";
+                f.style.display = "none";
+                var input = document.createElement("input");
+                input.name = "data";
+                input.value = JSON.stringify(payload);
+                f.appendChild(input);
+                document.body.appendChild(f);
+                f.submit();
+                document.body.removeChild(f);
               })
-              .finally(function(){
-                if(btn){ btn.disabled = false; btn.textContent = "送出許願"; }
-              });
+              .finally(function(){});
           } else {
             alert("尚未設定 API 網址，許願不會寫入試算表。\n\n請在 wish-pool.html 搜尋「WISH_SUBMIT_URL」，在引號內貼上 GAS 部署網址（Apps Script → 部署 → 網路應用程式 的網址）。");
             return;

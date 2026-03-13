@@ -1,19 +1,25 @@
 /**
  * 許願池 API - Google Apps Script
  * 貼到試算表：擴充功能 → Apps Script → 新增 .gs 檔貼上後部署為「網路應用程式」
- * Sheet 第一列標題：id	title	note	category	link	region	status	image1	image2	image3	supportCount	createdAt
+ * 重要：Sheet 第一列必須是標題 id, title, note, category, link, region, status, image1, image2, image3, supportCount, createdAt
  */
 
 /**
- * GET：讀取許願列表，回傳 JSON 給前端 WISH_LIST_URL
+ * GET：讀取許願列表。加上 ?callback=函數名 可回傳 JSONP（避開 CORS）
  */
 function doGet(e) {
+  var params = e && e.parameter ? e.parameter : {};
+  var callback = params.callback || null;
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
+  var data = [];
+  try {
+    data = sheet.getDataRange().getValues();
+  } catch (err) {
+    data = [];
+  }
   if (!data || data.length === 0) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ wishes: [] }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return _jsonResponse({ wishes: [] }, callback);
   }
   var headers = data[0];
   var rows = data.slice(1);
@@ -22,27 +28,52 @@ function doGet(e) {
     var row = rows[i];
     var obj = {};
     for (var j = 0; j < headers.length; j++) {
+      var key = headers[j];
       var val = row[j];
-      if (val != null && val !== "") {
-        obj[headers[j]] = val;
-      } else {
-        obj[headers[j]] = "";
-      }
+      obj[key] = (val != null && val !== "") ? val : "";
     }
     list.push(obj);
   }
-  return ContentService
-    .createTextOutput(JSON.stringify({ wishes: list }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return _jsonResponse({ wishes: list }, callback);
+}
+
+function _jsonResponse(obj, callback) {
+  var json = JSON.stringify(obj);
+  if (callback) {
+    var text = callback + "(" + json + ");";
+    return ContentService.createTextOutput(text).setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
  * POST：接收顧客許願表單（JSON），寫入一筆新列到 Sheet
- * 前端送：{ "title": "", "note": "", "category": "", "link": "", "region": "" }
+ * 前端可送：(1) fetch 送 body JSON  (2) 表單 submit 送參數 source=form 與 data=JSON 字串（避開 CORS）
  */
 function doPost(e) {
+  var json = null;
+  var returnHtml = false;
+
+  if (e && e.parameter && e.parameter.source === "form" && e.parameter.data) {
+    returnHtml = true;
+    try {
+      json = JSON.parse(e.parameter.data);
+    } catch (err) {
+      return _postResponse({ ok: false, error: "資料格式錯誤" }, returnHtml);
+    }
+  } else if (e && e.postData && e.postData.contents) {
+    try {
+      json = JSON.parse(e.postData.contents);
+    } catch (err) {
+      return _postResponse({ ok: false, error: err.toString() }, returnHtml);
+    }
+  }
+
+  if (!json) {
+    return _postResponse({ ok: false, error: "沒有收到表單資料" }, returnHtml);
+  }
+
   try {
-    var json = JSON.parse(e.postData.contents);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var lastRow = sheet.getLastRow();
     var newId = (lastRow < 1) ? 1 : lastRow;
@@ -64,12 +95,19 @@ function doPost(e) {
     ];
     sheet.appendRow(row);
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true, id: newId }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return _postResponse({ ok: true, id: newId }, returnHtml);
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return _postResponse({ ok: false, error: err.toString() }, returnHtml);
   }
+}
+
+function _postResponse(obj, asHtml) {
+  if (asHtml) {
+    var script = "window.parent.postMessage(" + JSON.stringify(obj) + ", '*');";
+    var html = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body><script>" + script + "<\/script><\/body><\/html>";
+    return ContentService.createTextOutput(html).setMimeType(ContentService.MimeType.HTML);
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
