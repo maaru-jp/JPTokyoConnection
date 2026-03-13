@@ -195,8 +195,33 @@
     .wish-detail-modal .detail-meta a{ color: var(--wish); text-decoration: underline; }
     .wish-detail-modal .detail-meta span{ display: flex; align-items: center; gap: 8px; color: var(--text); }
     .wish-detail-modal .detail-note{ font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
-    .wish-detail-modal .detail-images{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
-    .wish-detail-modal .detail-images img{ width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-sm); }
+    .wish-detail-modal .detail-images{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+    .wish-detail-modal .detail-images img{
+      width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-sm);
+      cursor: zoom-in;
+    }
+    .wish-detail-modal .detail-admin{
+      display: none;
+      margin-bottom: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .wish-detail-modal .detail-admin-btn{
+      flex: 1 1 auto;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: #f3f4f6;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .wish-detail-modal .detail-admin-btn.danger{
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
     .wish-detail-modal .detail-cta{ width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 900; cursor: pointer; margin-top: 4px; }
     .wish-detail-modal .detail-cta.active{ background: var(--wish); color: #fff; }
     .wish-detail-modal .detail-cta.done{ background: #f3f4f6; color: var(--muted); cursor: default; }
@@ -340,6 +365,10 @@
       <div class="detail-meta" id="detailMeta"></div>
       <div class="detail-note" id="detailNote" style="display:none;"></div>
       <div class="detail-images" id="detailImages"></div>
+      <div class="detail-admin" id="detailAdmin" style="display:none;">
+        <button type="button" class="detail-admin-btn" id="btnAdminReplaceImage">🔁 替換主圖</button>
+        <button type="button" class="detail-admin-btn danger" id="btnAdminCloseWish">🚫 關閉這筆許願</button>
+      </div>
       <button type="button" class="detail-cta active" id="detailCta">❤️ 我也想要 (+1 集氣)</button>
     </div>
   </div>
@@ -365,6 +394,10 @@
       var CLOUDINARY_CLOUD_NAME = "dtll13zax";        // 一定要全小寫
       var CLOUDINARY_UPLOAD_PRESET = "wish_pool_unsigned"; // 你建立的 unsigned preset 名稱
       var CLOUDINARY_FOLDER = "wish-pool";            // Cloudinary 裡的資料夾名稱（有減號）
+
+      // 簡易管理員密碼（僅前端檢查，用於開啟管理按鈕）
+      var ADMIN_PASSWORD = "pkk5cMTAjf3"; // 可自行修改
+      var isAdmin = false;
 
       var TOTAL = 50;
       var STORAGE_KEY = "wish_pool_supports";
@@ -484,6 +517,7 @@
         var metaEl = document.getElementById("detailMeta");
         var noteEl = document.getElementById("detailNote");
         var imagesEl = document.getElementById("detailImages");
+        var adminEl = document.getElementById("detailAdmin");
         var ctaEl = document.getElementById("detailCta");
         if(titleEl) titleEl.textContent = w.title || "許願";
         if(tagsEl) tagsEl.innerHTML = "<span class=\"tag tag-cat\">◆ " + escapeHtml(w.category || "其他") + "</span><span class=\"tag tag-status\">" + escapeHtml(w.status || "許願中") + "</span>";
@@ -500,8 +534,14 @@
         }
         var imgs = [ w.image1, w.image2, w.image3 ].filter(function(url){ return url != null && String(url).trim() !== ""; });
         if(imagesEl){
-          if(imgs.length) imagesEl.innerHTML = imgs.map(function(url){ return "<img src=\"" + escapeHtml(String(url).trim()) + "\" alt=\"\" referrerpolicy=\"no-referrer\" loading=\"lazy\" />"; }).join("");
+          if(imgs.length) imagesEl.innerHTML = imgs.map(function(url){
+            var u = escapeHtml(String(url).trim());
+            return "<img src=\"" + u + "\" alt=\"\" referrerpolicy=\"no-referrer\" loading=\"lazy\" onclick=\"window.open('" + u + "','_blank');\" />";
+          }).join("");
           else imagesEl.innerHTML = "";
+        }
+        if(adminEl){
+          adminEl.style.display = isAdmin ? "flex" : "none";
         }
         var voted = localStorage.getItem("wish_voted_" + wishId);
         if(ctaEl){
@@ -528,6 +568,27 @@
         if(countEl) countEl.textContent = n;
         if(fillEl) fillEl.style.width = Math.min(100, (n / TOTAL * 100)) + "%";
         if(ctaEl){ ctaEl.classList.remove("active"); ctaEl.classList.add("done"); ctaEl.textContent = "❤️ 你已經集氣過囉!"; ctaEl.disabled = true; }
+      }
+
+      // 管理員：更新單筆許願（狀態 / 圖片）
+      function adminUpdateWish(id, patch){
+        if(!WISH_SUBMIT_URL){
+          return Promise.reject(new Error("尚未設定 API 網址"));
+        }
+        var payload = {
+          action: "updateWish",
+          id: String(id),
+          status: patch.status || "",
+          image1: patch.image1 || "",
+          image2: patch.image2 || "",
+          image3: patch.image3 || ""
+        };
+        return fetch(WISH_SUBMIT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+          body: JSON.stringify(payload)
+        })
+          .then(function(res){ return res.json().catch(function(){ return {}; }).then(function(data){ if(!res.ok || data.ok === false) return Promise.reject(new Error(data.error || "更新失敗")); return data; }); });
       }
       function bindWishCardDetailClick(){
         document.querySelectorAll(".wish-card").forEach(function(card){
@@ -639,12 +700,25 @@
           if(e.target === formModal) formModal.classList.remove("show");
         });
       }
-      if(btnAdmin){ btnAdmin.addEventListener("click", function(){ alert("管理員功能尚未開放"); }); }
+      if(btnAdmin){
+        btnAdmin.addEventListener("click", function(){
+          var pwd = window.prompt("請輸入管理員密碼（僅闆闆自己使用）");
+          if(pwd == null) return;
+          if(pwd === ADMIN_PASSWORD){
+            isAdmin = true;
+            alert("已開啟管理員模式，點進許願卡片可看到編輯按鈕。");
+          }else{
+            alert("密碼錯誤，無法開啟管理員模式。");
+          }
+        });
+      }
 
       (function(){
         var detailModal = document.getElementById("wishDetailModal");
         var detailClose = document.getElementById("wishDetailClose");
         var detailCta = document.getElementById("detailCta");
+        var btnReplace = document.getElementById("btnAdminReplaceImage");
+        var btnCloseWish = document.getElementById("btnAdminCloseWish");
         if(detailClose) detailClose.addEventListener("click", closeWishDetail);
         if(detailModal) detailModal.addEventListener("click", function(e){ if(e.target === detailModal) closeWishDetail(); });
         if(detailCta){
@@ -662,6 +736,62 @@
               if(n != null) updateCardUI(wishId, n);
               updateDetailModalIfOpen(wishId);
             });
+          });
+        }
+        if(btnReplace){
+          btnReplace.addEventListener("click", function(e){
+            e.stopPropagation();
+            if(!isAdmin) return;
+            var modal = document.getElementById("wishDetailModal");
+            if(!modal) return;
+            var wishId = modal.getAttribute("data-current-id");
+            if(!wishId) return;
+            var input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.style.display = "none";
+            input.addEventListener("change", function(){
+              if(!input.files || !input.files[0]) return;
+              var file = input.files[0];
+              if(!window.confirm("確定要替換這筆許願的主圖嗎？")) return;
+              adminUploadSingleImage(file)
+                .then(function(url){
+                  return adminUpdateWish(wishId, { image1: url });
+                })
+                .then(function(){
+                  alert("主圖已更新。");
+                  if(WISH_LIST_URL){
+                    loadWishList().then(renderFeed);
+                  }
+                })
+                .catch(function(err){
+                  alert("替換圖片失敗：" + (err && err.message ? err.message : err));
+                });
+            });
+            document.body.appendChild(input);
+            input.click();
+            setTimeout(function(){ document.body.removeChild(input); }, 0);
+          });
+        }
+        if(btnCloseWish){
+          btnCloseWish.addEventListener("click", function(e){
+            e.stopPropagation();
+            if(!isAdmin) return;
+            var modal = document.getElementById("wishDetailModal");
+            if(!modal) return;
+            var wishId = modal.getAttribute("data-current-id");
+            if(!wishId) return;
+            if(!window.confirm("確定要關閉這筆許願嗎？\n\n前台會顯示為「已關閉」，但資料仍保留在試算表中。")) return;
+            adminUpdateWish(wishId, { status: "已關閉" })
+              .then(function(){
+                alert("這筆許願已標記為已關閉。");
+                if(WISH_LIST_URL){
+                  loadWishList().then(renderFeed);
+                }
+              })
+              .catch(function(err){
+                alert("關閉許願失敗：" + (err && err.message ? err.message : err));
+              });
           });
         }
       })();
@@ -721,6 +851,42 @@
               return [u0, u1, u2];
             });
           });
+        });
+      }
+
+      // 管理員：單張圖片上傳（替換主圖用）
+      function adminUploadSingleImage(file){
+        return new Promise(function(resolve, reject){
+          if(!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET){
+            reject(new Error("尚未設定 Cloudinary"));
+            return;
+          }
+          if(!file){
+            reject(new Error("沒有選擇檔案"));
+            return;
+          }
+          var maxSize = 5 * 1024 * 1024;
+          if(file.size > maxSize){
+            reject(new Error("圖片太大，請壓縮到 5MB 以內"));
+            return;
+          }
+          var uploadUrl = "https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/image/upload";
+          var formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+          if(CLOUDINARY_FOLDER){
+            formData.append("folder", CLOUDINARY_FOLDER);
+          }
+          fetch(uploadUrl, { method: "POST", body: formData })
+            .then(function(r){ return r.json().catch(function(){ return {}; }); })
+            .then(function(d){
+              if(d && (d.secure_url || d.url)){
+                resolve(d.secure_url || d.url);
+              }else{
+                reject(new Error((d && d.error && d.error.message) || "上傳失敗"));
+              }
+            })
+            .catch(function(err){ reject(err); });
         });
       }
       function doSubmitWish(payload){

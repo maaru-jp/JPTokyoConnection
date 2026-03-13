@@ -79,6 +79,56 @@ function doPost(e) {
     return _postResponse({ ok: false, error: "沒有收到表單資料" }, returnHtml);
   }
 
+  // 管理員：更新單筆許願（狀態 / 圖片）
+  if (json.action === "updateWish") {
+    try {
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      var data = sheet.getDataRange().getValues();
+      if (!data || data.length < 2) {
+        return _postResponse({ ok: false, error: "目前沒有資料可更新" }, returnHtml);
+      }
+      var headers = data[0];
+      var idIndex = headers.indexOf("id");
+      var statusIndex = headers.indexOf("status");
+      var img1Index = headers.indexOf("image1");
+      var img2Index = headers.indexOf("image2");
+      var img3Index = headers.indexOf("image3");
+      if (idIndex === -1) {
+        return _postResponse({ ok: false, error: "找不到 id 欄位" }, returnHtml);
+      }
+      var targetRow = -1;
+      var targetId = String(json.id || "");
+      for (var i = 1; i < data.length; i++) {
+        var rowId = String(data[i][idIndex]);
+        if (rowId === targetId) {
+          targetRow = i + 1; // 轉成試算表列號（從 1 開始）
+          break;
+        }
+      }
+      if (targetRow === -1) {
+        return _postResponse({ ok: false, error: "找不到指定編號的許願" }, returnHtml);
+      }
+      var rowRange = sheet.getRange(targetRow, 1, 1, headers.length);
+      var rowValues = rowRange.getValues()[0];
+      if (statusIndex !== -1 && typeof json.status === "string" && json.status !== "") {
+        rowValues[statusIndex] = json.status;
+      }
+      if (img1Index !== -1 && typeof json.image1 === "string" && json.image1 !== "") {
+        rowValues[img1Index] = json.image1;
+      }
+      if (img2Index !== -1 && typeof json.image2 === "string" && json.image2 !== "") {
+        rowValues[img2Index] = json.image2;
+      }
+      if (img3Index !== -1 && typeof json.image3 === "string" && json.image3 !== "") {
+        rowValues[img3Index] = json.image3;
+      }
+      rowRange.setValues([rowValues]);
+      return _postResponse({ ok: true, id: targetId }, returnHtml);
+    } catch (err) {
+      return _postResponse({ ok: false, error: err.toString() }, returnHtml);
+    }
+  }
+
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var lastRow = sheet.getLastRow();
