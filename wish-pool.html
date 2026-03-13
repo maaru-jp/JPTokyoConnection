@@ -310,12 +310,17 @@
 
   <script>
     (function(){
+      /*
+       * 【必填】API 網址：兩行都要貼上「同一個」GAS 部署網址，許願才會寫入試算表並顯示卡片
+       * 取得方式：開啟試算表 → 擴充功能 → Apps Script → 部署 → 新增部署 → 類型選「網路應用程式」
+       *           → 執行身分「我」、存取權「任何人」→ 部署後複製「網路應用程式 URL」
+       */
+      var WISH_LIST_URL = "https://script.google.com/macros/s/AKfycbztW2xXJsPQmrvHYENQ7QtNxCJdXT4gXWOA2NpmsXDBd5ZizEzodropXvjNHL9yLW4-_g/exec";
+      var WISH_SUBMIT_URL = "https://script.google.com/macros/s/AKfycbztW2xXJsPQmrvHYENQ7QtNxCJdXT4gXWOA2NpmsXDBd5ZizEzodropXvjNHL9yLW4-_g/exec";
+
       var TOTAL = 50;
       var STORAGE_KEY = "wish_pool_supports";
       var STORAGE_COUNT = "wish_pool_counts";
-
-      // 後端串接：許願「列表」從這裡讀（GET），回傳格式見 許願池後端串接說明.md。圖片用 Sheet 的 image1 網址。
-      var WISH_LIST_URL = "https://script.google.com/macros/s/AKfycbztW2xXJsPQmrvHYENQ7QtNxCJdXT4gXWOA2NpmsXDBd5ZizEzodropXvjNHL9yLW4-_g/exec";
 
       function getCounts(){
         try {
@@ -489,8 +494,6 @@
       if(btnAdmin){ btnAdmin.addEventListener("click", function(){ alert("管理員功能尚未開放"); }); }
 
       (function(){
-        // 後端串接：送出許願表單（POST）。顧客輸入的所有欄位會以 JSON 送出，由後端集中寫入 Sheet。詳見 許願池後端串接說明.md
-        var WISH_SUBMIT_URL = "";
         document.getElementById("wishForm").addEventListener("submit", function(e){
           e.preventDefault();
           var form = this;
@@ -509,24 +512,29 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload)
             })
-              .then(function(res){ return res.ok ? res.json().catch(function(){ return {}; }) : Promise.reject(new Error("送出失敗")); })
-              .then(function(){
+              .then(function(res){ return res.json().catch(function(){ return {}; }).then(function(data){ if(!res.ok) return Promise.reject(new Error(data.error || "送出失敗")); return data; }); })
+              .then(function(data){
+                if(data && data.ok === false){
+                  alert("寫入失敗：" + (data.error || "請稍後再試"));
+                  return;
+                }
                 alert("許願已送出");
                 if(formModal) formModal.classList.remove("show");
                 form.reset();
                 wishImageFiles = [];
                 renderUploadPreviews();
+                if(WISH_LIST_URL) loadWishList().then(renderFeed);
               })
               .catch(function(err){
-                alert("送出失敗，請稍後再試或聯絡闆闆");
+                alert("送出失敗，請稍後再試或聯絡闆闆。若已設定 API 網址，請確認 GAS 已部署為「任何人」並完成授權。");
                 console.error(err);
               })
               .finally(function(){
                 if(btn){ btn.disabled = false; btn.textContent = "送出許願"; }
               });
           } else {
-            alert("許願已送出");
-            if(formModal) formModal.classList.remove("show");
+            alert("尚未設定 API 網址，許願不會寫入試算表。\n\n請在 wish-pool.html 搜尋「WISH_SUBMIT_URL」，在引號內貼上 GAS 部署網址（Apps Script → 部署 → 網路應用程式 的網址）。");
+            return;
           }
         });
       })();
@@ -655,4 +663,3 @@
   </script>
 </body>
 </html>
-
