@@ -4,7 +4,7 @@
  * 重要：Sheet 第一列必須是標題 id, title, note, category, link, region, status, image1, image2, image3, supportCount, createdAt
  * CMS 後台寫入：POST 時帶 action=updateBulletins|updateDepositPlans|updateItinerary 與 secret（需與下方一致）
  */
-var CMS_SECRET = "esV5RWUY40etwy0";
+var CMS_SECRET = "請改成你的後台密碼";
 
 /**
  * GET：讀取許願列表。加上 ?callback=函數名 可回傳 JSONP（避開 CORS）
@@ -265,7 +265,7 @@ function doPost(e) {
         sheet.getRange(1, 1, 1, 2).setValues([["type", "text"]]);
         for (var i = 0; i < list.length; i++) {
           var b = list[i];
-          sheet.getRange(i + 2, 1, i + 2, 2).setValues([[b.type || "info", b.text || ""]]);
+          sheet.getRange(i + 2, 1, 1, 2).setValues([[b.type || "info", b.text || ""]]);
         }
         return _postResponse({ ok: true }, returnHtml);
       } catch (err) {
@@ -283,7 +283,7 @@ function doPost(e) {
           var p = list[i];
           var amt = parseInt(p.amount, 10) || 0;
           if (amt <= 0) continue;
-          sheet.getRange(rowNum, 1, rowNum, 4).setValues([[amt, parseInt(p.bonus, 10) || 0, p.label || "", p.badge || ""]]);
+          sheet.getRange(rowNum, 1, 1, 4).setValues([[amt, parseInt(p.bonus, 10) || 0, p.label || "", p.badge || ""]]);
           rowNum++;
         }
         return _postResponse({ ok: true }, returnHtml);
@@ -302,7 +302,7 @@ function doPost(e) {
           var d = list[i];
           var itemsStr = Array.isArray(d.items) ? d.items.join("|") : (d.items || "");
           var tagsStr = Array.isArray(d.tags) ? d.tags.join("|") : (d.tags || "");
-          sheet.getRange(i + 2, 1, i + 2, headers.length).setValues([[
+          sheet.getRange(i + 2, 1, 1, headers.length).setValues([[
             d.day || "", d.title || "", itemsStr, tagsStr,
             d.imageUrl || "", d.twStart || "", d.twEnd || "", d.jpStart || "", d.jpEnd || "", d.countdownTarget || ""
           ]]);
