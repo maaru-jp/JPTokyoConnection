@@ -4,7 +4,7 @@
  * 重要：Sheet 第一列必須是標題 id, title, note, category, link, region, status, image1, image2, image3, supportCount, createdAt
  * CMS 後台寫入：POST 時帶 action=updateBulletins|updateDepositPlans|updateItinerary 與 secret（需與下方一致）
  */
-var CMS_SECRET = "esV5RWUY40etwy0";
+var CMS_SECRET = "請改成你的後台密碼";
 
 /**
  * GET：讀取許願列表。加上 ?callback=函數名 可回傳 JSONP（避開 CORS）
@@ -14,6 +14,18 @@ function doGet(e) {
   var params = e && e.parameter ? e.parameter : {};
   var callback = params.callback || null;
   var type = (params.type || "").toLowerCase();
+
+  if (params.page === "admin") {
+    try {
+      return HtmlService.createHtmlOutputFromFile("Admin")
+        .setTitle("CMS 後台")
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    } catch (err) {
+      return ContentService.createTextOutput(
+        "請先在 Apps Script 專案左側新增「檔案」→「新增」→「HTML」，檔名設為 Admin，將您電腦中 admin.html 的完整內容貼上後儲存，再重新部署。完成後用此網址加上 ?page=admin 開啟後台，即可避免跨域導致儲存失敗。"
+      ).setMimeType(ContentService.MimeType.TEXT);
+    }
+  }
 
   if (type === "bulletins") {
     return _jsonResponse(_readBulletins(), callback);

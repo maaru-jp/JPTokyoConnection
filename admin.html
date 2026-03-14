@@ -45,12 +45,12 @@
     <div id="loginBox">
       <div class="card">
         <h1>CMS 後台登入</h1>
-        <p style="margin:0 0 16px; color:#64748b; font-size:14px;">請輸入與 GAS 中 <code>CMS_SECRET</code> 相同的密碼，以及 GAS 部署網址。</p>
+        <p style="margin:0 0 16px; color:#64748b; font-size:14px;">請輸入與 GAS 中 <code>CMS_SECRET</code> 相同的密碼，以及 GAS 部署網址。<strong>若從本機檔案或其他網域開啟，儲存可能因瀏覽器跨域限制而失敗</strong>；建議改從 GAS 網址開啟：<code>您的GAS網址?page=admin</code>（需先在 GAS 專案新增 HTML 檔「Admin」並貼上 admin.html 內容）。</p>
         <form class="login-form" id="loginForm">
           <label>GAS 部署網址</label>
-          <input type="url" id="gasUrl" placeholder="https://script.google.com/macros/s/AKfycbztW2xXJsPQmrvHYENQ7QtNxCJdXT4gXWOA2NpmsXDBd5ZizEzodropXvjNHL9yLW4-_g/exec" required />
+          <input type="url" id="gasUrl" placeholder="https://script.google.com/macros/s/你的ID/exec" required />
           <label>後台密碼</label>
-          <input type="password" id="loginPwd" placeholder="esV5RWUY40etwy0" required />
+          <input type="password" id="loginPwd" placeholder="與 GAS 中 CMS_SECRET 相同" required />
           <button type="submit" class="btn btn-primary">登入</button>
           <p id="loginError" class="error" style="display:none;"></p>
         </form>
@@ -147,6 +147,11 @@
       var dashboard = document.getElementById("dashboard");
       var gasUrlInput = document.getElementById("gasUrl");
       var loginPwdInput = document.getElementById("loginPwd");
+      if (window.location.hostname === "script.google.com" && window.location.pathname.indexOf("/macros/") !== -1) {
+        var base = window.location.origin + window.location.pathname;
+        sessionStorage.setItem(STORAGE_URL, base);
+        if (gasUrlInput) { gasUrlInput.value = base; gasUrlInput.readOnly = true; }
+      }
 
       function showLogin(){ loginBox.classList.remove("hide"); dashboard.classList.remove("show"); }
       function showDashboard(){ loginBox.classList.add("hide"); dashboard.classList.add("show"); }
