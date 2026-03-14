@@ -4,7 +4,7 @@
  * 重要：Sheet 第一列必須是標題 id, title, note, category, link, region, status, image1, image2, image3, supportCount, createdAt
  * CMS 後台寫入：POST 時帶 action=updateBulletins|updateDepositPlans|updateItinerary 與 secret（需與下方一致）
  */
-var CMS_SECRET = "請改成你的後台密碼";
+var CMS_SECRET = "esV5RWUY40etwy0";
 
 /**
  * GET：讀取許願列表。加上 ?callback=函數名 可回傳 JSONP（避開 CORS）
