@@ -279,10 +279,10 @@
       border-radius: var(--radius) var(--radius) 0 0;
     }
     .hero-flow{
-      display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
-      margin-bottom:18px; padding:12px 16px; border-radius:16px;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap;
+      margin:0 0 14px 0; padding:8px 12px; border-radius:999px;
       background: var(--accent-bg); border:1px solid var(--accent-border);
-      font-size:14px; font-weight:800; color:var(--text);
+      font-size:12px; font-weight:800; color:var(--text);
     }
     .hero-flow span{ display:inline-flex; align-items:center; gap:6px; }
     .hero-flow .num{ width:26px; height:26px; border-radius:50%; background:var(--accent); color:var(--toast-text); display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; }
@@ -298,7 +298,77 @@
     .title-sub{ display:block; margin-top:4px; font-size:20px; font-weight:800; color:var(--accent); }
     .subtitle{margin:0; max-width:92%; color:var(--muted); font-size:15px; line-height:1.65; font-weight:800;}
 
-    .hero-actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;}
+    .hero-actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:18px;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .notice-card{
+      margin:18px 0 8px;
+      padding:18px 18px 14px;
+    }
+    .notice-card h2{
+      margin:0;
+      font-size:18px;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .notice-tag{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 8px;
+      border-radius:999px;
+      background: var(--accent-bg);
+      color:var(--accent);
+      font-size:11px;
+      font-weight:900;
+      margin-left:auto;
+    }
+    .notice-list{
+      margin:10px 0 0;
+      padding-left:20px;
+      font-size:13px;
+      font-weight:800;
+      color:var(--muted);
+    }
+    .notice-list li+li{margin-top:4px;}
+    .notice-details{
+      margin-top:10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:var(--card);
+      padding:8px 10px;
+    }
+    .notice-details summary{
+      list-style:none;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:900;
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .notice-details summary::marker{display:none;}
+    .notice-details summary span{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .notice-body{
+      margin-top:6px;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .notice-body ul{
+      margin:4px 0 0;
+      padding-left:18px;
+    }
     .btn{
       display:inline-flex; align-items:center; justify-content:center;
       gap:10px; padding:11px 14px;
@@ -485,7 +555,7 @@
     .deposit-intro p{ margin:0 0 16px; font-size:15px; line-height:1.65; color:var(--muted); font-weight:800; }
     .deposit-intro-bottom{ margin-top: 18px; }
     .deposit-intro-bottom p{ margin:0; }
-    .deposit-wrap{padding: 0 22px 22px;}
+    .deposit-wrap{padding: 10px 22px 22px;}
     .deposit-grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -495,12 +565,12 @@
       overflow:hidden;
     }
     .deposit-col-left{
-      padding: 20px 20px 24px;
+      padding: 16px 20px 20px;
       background: linear-gradient(180deg, var(--card) 0%, var(--accent-bg) 50%);
       border-right: 2px solid var(--line);
     }
     .deposit-col-right{
-      padding: 20px 20px 24px;
+      padding: 14px 20px 18px;
       background: var(--accent-bg);
     }
     .deposit-left-hint{ margin-top:10px; color:var(--muted); font-size:13px; font-weight:800; }
@@ -740,12 +810,16 @@
       .deposit-cards{grid-template-columns: repeat(3,1fr)}
     }
     @media (max-width: 560px){
+      .wrap{padding:18px 14px 40px}
+      .topbar{flex-direction:column; align-items:flex-start; gap:8px;}
       .time-bar{grid-template-columns:1fr}
       .plist{grid-template-columns: 1fr}
       .day{grid-template-columns:1fr}
       .badge{width:auto; justify-self:start}
       .title{font-size:24px}
       .corner{top:10px; right:10px}
+      .hero-actions{flex-direction:column; align-items:stretch;}
+      .hero-actions .btn{width:100%; justify-content:center;}
       .deposit-cards{grid-template-columns: 1fr}
     }
   </style>
@@ -806,6 +880,35 @@
       </div>
     </div>
 
+    <div class="card notice-card" id="noticeCard">
+      <h2>📢 公布欄 <span class="notice-tag">最新資訊</span></h2>
+      <ul class="notice-list" id="noticeList">
+        <li>目前尚無特別公告，行程與代購規則請參考下方說明。</li>
+      </ul>
+      <details class="notice-details">
+        <summary>
+          代購注意事項（重點版）
+          <span>點此展開 / 收合</span>
+        </summary>
+        <div class="notice-body">
+          <ul>
+            <li><strong>先儲值後喊單</strong>：未提供儲值編號的喊單不受理</li>
+            <li><strong>棄單處理</strong>：成單後取消視同棄單，<strong style="color:#dc2626;">儲值金不退</strong></li>
+            <li><strong>補款</strong>：差額以 7-11 賣貨便補款，回台後請於開單後 48 小時內完成</li>
+            <li><strong>預估價</strong>：採分級匯率計算；活動 / 缺貨 / 限購會影響實際成單</li>
+            <li><strong>國際運費</strong>：本次不另外收（人肉扛貨帶回）</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn primary" href="#deposit">先看儲值方案</a>
+      <a class="btn" href="https://maaru-jp.github.io/JP-Connection/" target="_blank" rel="noopener">機場伴手禮</a>
+      <a class="btn ghost" href="itinerary.html" target="_blank" rel="noopener">看行程表</a>
+      <a class="btn" href="wish-pool.html" target="_blank" rel="noopener">許願池</a>
+    </div>
+
     <!-- HERO -->
     <div class="hero">
       <div class="card hero-main">
@@ -824,13 +927,6 @@
         </div>
         <p class="subtitle">
           本次採「<strong>親飛連線前先儲值、後喊單</strong>」方案：只有完成儲值且取得<strong>儲值編號</strong>的喊單才會受理          成單後先扣儲值金；若總金額超過儲值金，出貨時以<strong>7-11 賣貨便</strong>補款（限 24 小時）        </p>
-
-        <div class="hero-actions">
-          <a class="btn primary" href="#deposit">先看儲值方案</a>
-          <a class="btn" href="https://maaru-jp.github.io/JP-Connection/" target="_blank" rel="noopener">機場伴手禮</a>
-          <a class="btn ghost" href="#itinerary">看行程表</a>
-          <a class="btn" href="wish-pool.html" target="_blank" rel="noopener">許願池</a>
-        </div>
       </div>
 
       <div class="card hero-side">
@@ -1011,12 +1107,9 @@
                 <div class="hint" style="margin-top:10px;">NT$1000 贈送 $100｜成單先扣 1000｜超額再補</div>
               </div>
             </div>
-            <div class="deposit-left-hint">
-              ✅ 成單後先扣儲值金｜✅ 超額差額出貨前用賣貨便補款（48 小時）｜⚠️ 成單後取消視同棄單：儲值金不退
-            </div>
           </div>
 
-          <!-- 右欄：喊單格式 -->
+          <!-- 右欄：喊單格式 + 注意事項 -->
           <div class="deposit-col-right">
             <header class="deposit-head deposit-head-right">
               <div class="deposit-head-inner">
@@ -1057,6 +1150,8 @@
 
             </div>
 
+            <!-- 注意事項已移到上方「公布欄」收合說明框 -->
+
             <div class="preview">
               <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                 <div class="label">預覽（會複製這段）</div>
@@ -1069,41 +1164,6 @@
               📌 提醒：<span class="inline-strong">未提供儲值編號</span> 的喊單並同步私訊官方LINE，不會採買٩(ˊᗜˋ*)و            </div>
           </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 行程 + 注意事項 -->
-    <div class="grid">
-      <div class="card" id="itinerary">
-        <div class="corner">
-          <div class="sticker blue"><span class="emo">🐰</span> 行前預告</div>
-        </div>
-        <div class="section">
-          <h2>行程表（概略）</h2>
-          <p>想看每天大概在哪、哪幾天會連線、哪幾天在移動，可以點下面按鈕看完整行程表</p>
-          <p style="margin-top:8px;">
-            <a href="itinerary.html" class="btn primary">打開本次行程表 ➝</a>
-          </p>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="corner">
-          <div class="sticker cream"><span class="emo">🐻</span> 先講清楚</div>
-        </div>
-        <div class="section">
-          <h2>代購注意事項（重點版）</h2>
-          <p>規則清楚＝彼此省時間我們把力氣留給買到貨</p>
-        </div>
-        <div class="deposit-wrap" style="padding-top:0;">
-          <ul style="margin:0; padding-left:18px; color:var(--muted); font-size:13px; font-weight:800;">
-            <li><strong>先儲值後喊單</strong>：未提供儲值編號的喊單不受理</li>
-            <li><strong>棄單處理</strong>：成單後取消視同棄單，<strong style="color:#dc2626;">儲值金不退</strong></li>
-            <li><strong>補款</strong>：差額以 7-11 賣貨便補款，回台後請於開單後 48 小時內完成</li>
-            <li><strong>預估價</strong>：採分級匯率計算；活動/缺貨/限購會影響實際成單</li>
-            <li><strong>國際運費</strong>：本次不另外收（人肉扛貨帶回）</li>
-          </ul>
         </div>
       </div>
     </div>
@@ -1199,10 +1259,16 @@
         btn.addEventListener("click", function(){ setTheme(btn.getAttribute("data-theme")); });
       });
     })();
+    // ====== CMS：與許願池同一個 GAS 網址，填了會從試算表讀取公布欄、儲值方案 ======
+    var CMS_BASE_URL = ""; // 例： "https://script.google.com/macros/s/你的ID/exec"
     // ====== 你只需要改這裡（資料區） ======
     const CONFIG = {
       tripRangeText: "2026/04/26 – 2026/05/04（9天）",
       liveDaysText: "Day 3、Day 6（暫定，日本時間晚間 20:00 左右）",
+      // 公布欄（可自行調整內容）
+      bulletins: [
+        // { type: "info", text: "這裡可以放最新公告，例如「本次行程仍在規劃中，實際代購日以 IG 公告為主」。" }
+      ],
 
       // 儲值方案
       depositPlans: [
@@ -1303,6 +1369,22 @@
         </div>
       `).join("");
     }
+
+    // ====== 公布欄渲染 ======
+    function renderNotice(){
+      const el = $("#noticeList");
+      if(!el) return;
+      const items = CONFIG.bulletins || [];
+      if(!items.length){
+        el.innerHTML = `<li>目前尚無特別公告，行程與代購規則請參考下方說明。</li>`;
+        return;
+      }
+      el.innerHTML = items.map(b => {
+        const prefix = b.type === "warn" ? "⚠️ " : b.type === "info" ? "ℹ️ " : "• ";
+        return `<li>${prefix}${b.text}</li>`;
+      }).join("");
+    }
+
 
     // ====== 商品渲染 ======
     let activeCat = "全部";
@@ -1582,14 +1664,34 @@
       });
     })();
 
+    function loadCmsConfig(){
+      var base = (CMS_BASE_URL || "").trim().replace(/\?.*$/, "");
+      if(!base) return Promise.resolve();
+      var bulletinsUrl = base + (base.indexOf("?") >= 0 ? "&" : "?") + "type=bulletins";
+      var depositUrl = base + (base.indexOf("?") >= 0 ? "&" : "?") + "type=deposit";
+      return Promise.all([
+        fetch(bulletinsUrl).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){ if(d && d.bulletins && d.bulletins.length) CONFIG.bulletins = d.bulletins; }).catch(function(){ }),
+        fetch(depositUrl).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){ if(d && d.depositPlans && d.depositPlans.length) CONFIG.depositPlans = d.depositPlans; }).catch(function(){ })
+      ]);
+    }
     // init
-    renderItinerary();
-    renderChips();
-    renderProducts();
-    bindSearch();
-    renderDepositCards();
-    bindDepositAmountBtns();
-    bindDepositCopy();
+    (function doInit(){
+      function run(){
+        renderItinerary();
+        renderNotice();
+        renderChips();
+        renderProducts();
+        bindSearch();
+        renderDepositCards();
+        bindDepositAmountBtns();
+        bindDepositCopy();
+      }
+      if(CMS_BASE_URL && CMS_BASE_URL.trim()){
+        loadCmsConfig().then(run).catch(run);
+      } else {
+        run();
+      }
+    })();
   </script>
   <div class="footer">
     <div>此頁面為此次東京親飛連線專用資訊頁，僅針對本期行程與代購說明使用</div>

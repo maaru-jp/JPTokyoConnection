@@ -57,6 +57,40 @@
     .btn-ghost:hover{ color: var(--text); border-color: var(--muted); }
 
     .grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .wish-pagination{
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      margin-top: 24px; flex-wrap: wrap;
+    }
+    .wish-pagination .page-btn{
+      width: 40px; height: 40px; min-width: 40px; padding: 0;
+      border-radius: 50%; border: 2px solid transparent;
+      background: transparent; color: #818cf8; font-size: 15px; font-weight: 800;
+      cursor: pointer; transition: background .2s, color .2s, border-color .2s;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .wish-pagination .page-btn:hover{ background: rgba(129,140,248,.15); color: #6366f1; }
+    .wish-pagination .page-btn.active{
+      background: #818cf8; color: #fff; border-color: #818cf8;
+    }
+    .wish-pagination .arrow-btn{
+      width: 40px; height: 40px; min-width: 40px; padding: 0;
+      border-radius: 50%; border: 2px solid #6366f1;
+      background: transparent; color: #6366f1; font-size: 18px; font-weight: 700;
+      cursor: pointer; transition: opacity .2s, background .2s, color .2s;
+      display: inline-flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .wish-pagination .arrow-btn:hover:not(:disabled){
+      background: rgba(99,102,241,.2); color: #4f46e5;
+    }
+    .wish-pagination .arrow-btn:disabled{ opacity: .4; cursor: not-allowed; }
+    @media (max-width: 560px){
+      .wish-pagination{ gap: 10px; margin-top: 20px; }
+      .wish-pagination .page-btn, .wish-pagination .arrow-btn{
+        width: 48px; height: 48px; min-width: 48px; font-size: 16px;
+      }
+      .wish-pagination .arrow-btn{ font-size: 20px; }
+    }
     .wish-card{
       background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
       box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
@@ -72,6 +106,19 @@
     .wish-card .body{ padding: 14px 16px; flex: 1; display: flex; flex-direction: column; }
     .wish-card .title{ font-size: 16px; font-weight: 900; margin: 0 0 10px; line-height: 1.35; }
     .wish-card .tags{ display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .wish-card .same-product-hint{
+      font-size: 12px; font-weight: 800; color: #6366f1; margin: -4px 0 10px;
+    }
+    .wish-grid-loading{
+      grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 16px;
+      font-size: 15px; font-weight: 800;
+    }
+    .wish-grid-loading::after{
+      content: ""; display: inline-block; width: 20px; height: 20px; margin-left: 8px;
+      border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%;
+      animation: wish-load-spin .7s linear infinite; vertical-align: middle;
+    }
+    @keyframes wish-load-spin{ to{ transform: rotate(360deg); } }
     .tag{
       display: inline-flex; align-items: center; gap: 4px;
       padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;
@@ -188,6 +235,7 @@
     .wish-detail-modal .detail-close:hover{ background: var(--line); color: var(--text); }
     .wish-detail-modal .detail-title{ font-size: 20px; font-weight: 900; margin: 0 0 12px; line-height: 1.35; padding-right: 40px; }
     .wish-detail-modal .detail-tags{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .wish-detail-modal .detail-same-product{ font-size: 13px; font-weight: 800; color: #6366f1; margin: -6px 0 12px; }
     .wish-detail-modal .detail-progress{ margin-bottom: 16px; }
     .wish-detail-modal .detail-progress .progress-text{ font-size: 14px; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
     .wish-detail-modal .detail-progress .count-num{ color: var(--wish); font-weight: 900; font-size: 16px; }
@@ -198,7 +246,6 @@
     .wish-detail-modal .detail-images{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
     .wish-detail-modal .detail-images img{
       width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-sm);
-      cursor: zoom-in;
     }
     .wish-detail-modal .detail-admin{
       display: none;
@@ -226,25 +273,6 @@
     .wish-detail-modal .detail-cta.active{ background: var(--wish); color: #fff; }
     .wish-detail-modal .detail-cta.done{ background: #f3f4f6; color: var(--muted); cursor: default; }
 
-    .image-viewer{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.85);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 120;
-      padding: 16px;
-    }
-    .image-viewer.show{ display: flex; }
-    .image-viewer img{
-      max-width: 92vw;
-      max-height: 92vh;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.7);
-      background: #000;
-    }
-
     .feed-card h3{ font-size: 16px; font-weight: 900; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
     .feed-list{ list-style: none; }
     .feed-list li{
@@ -257,6 +285,7 @@
     .feed-list .who{ color: var(--wish); }
     .modal-wrap{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
     .modal-wrap.show{ display: flex; }
+    #nickModal.show{ z-index: 110; }
     .modal-form.show{ display: flex; }
     .modal{
       background: var(--card); border-radius: var(--radius); padding: 24px; max-width: 360px; width: 100%;
@@ -278,7 +307,7 @@
     <header class="header">
       <div class="header-left">
         <h1>許願池</h1>
-        <p class="sub">說出你的願望，大家幫你實現</p>
+        <p class="sub">許願＋集氣，一起把願望實現</p>
       </div>
       <div class="header-actions">
         <button type="button" class="btn btn-wish" id="btnLaunch">＋ 發起許願</button>
@@ -290,6 +319,7 @@
     <div class="grid" id="wishGrid">
       <p class="wish-grid-empty" style="grid-column:1/-1; text-align:center; color:var(--muted); padding:40px 16px; font-size:15px; font-weight:800;">尚無許願，點擊上方「＋ 發起許願」新增</p>
     </div>
+    <div class="wish-pagination" id="wishPagination" style="display:none;"></div>
 
     <div class="modal-wrap modal-form" id="formModal">
       <div class="form-card" onclick="event.stopPropagation()">
@@ -372,11 +402,24 @@
     </div>
   </div>
 
+  <div class="modal-wrap" id="adminModal">
+    <div class="modal">
+      <h4>管理員登入</h4>
+      <p>請輸入管理員密碼：</p>
+      <input type="password" id="adminPasswordInput" placeholder="請輸入管理員密碼" />
+      <div class="modal-actions">
+        <button type="button" class="btn-skip" id="adminCancel">取消</button>
+        <button type="button" class="btn-ok" id="adminConfirm">登入</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-wrap wish-detail-modal" id="wishDetailModal" style="display:none;">
     <div class="detail-card" onclick="event.stopPropagation()">
       <button type="button" class="detail-close" id="wishDetailClose" aria-label="關閉">×</button>
       <h2 class="detail-title" id="detailTitle"></h2>
       <div class="detail-tags" id="detailTags"></div>
+      <p class="detail-same-product" id="detailSameProduct" style="display:none;"></p>
       <div class="detail-progress" id="detailProgress">
         <div class="progress-text">❤️ <span class="count count-num" id="detailCount">0</span> / <span class="total" id="detailTotal">50</span> 集氣</div>
         <div class="progress-bar"><div class="progress-fill" id="detailFill" style="width:0%"></div></div>
@@ -392,9 +435,6 @@
     </div>
   </div>
 
-  <div class="image-viewer" id="imageViewer">
-    <img id="imageViewerImg" src="" alt="預覽圖片" />
-  </div>
 
   <script>
     (function(){
@@ -423,9 +463,12 @@
       var isAdmin = false;
 
       var TOTAL = 50;
+      var PAGE_SIZE = 12;
       var STORAGE_KEY = "wish_pool_supports";
       var STORAGE_COUNT = "wish_pool_counts";
       var wishListCache = [];
+      var currentWishPage = 1;
+      var wishTotalPages = 1;
 
       function getCounts(){
         try {
@@ -464,6 +507,30 @@
       }
       function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
+      /** 同商品分組用：有連結以連結為準，否則以標題 */
+      function getGroupKey(w){
+        var link = (w.link || "").trim().toLowerCase().replace(/\/+$/, "");
+        if(link) return "link:" + link;
+        return "title:" + (w.title || "").trim().toLowerCase();
+      }
+      /** 同商品只顯示一張卡：依連結／標題分組，每組只留第一筆並設 _groupSize = 該組人數 */
+      function groupAndSortWishList(list){
+        var groups = {};
+        for(var i = 0; i < list.length; i++){
+          var key = getGroupKey(list[i]);
+          if(!groups[key]) groups[key] = [];
+          groups[key].push(list[i]);
+        }
+        var sorted = [];
+        for(var k in groups){
+          var arr = groups[k];
+          var first = arr[0];
+          first._groupSize = arr.length;
+          sorted.push(first);
+        }
+        return sorted;
+      }
+
       function renderWishCard(w){
         var id = String(w.id != null ? w.id : "");
         var title = escapeHtml(w.title || "許願");
@@ -477,6 +544,7 @@
           "<div class=\"body\">" +
           "<h3 class=\"title\">" + title + "</h3>" +
           "<div class=\"tags\"><span class=\"tag tag-cat\">◆ " + category + "</span><span class=\"tag tag-status\">" + status + "</span></div>" +
+          (w._groupSize > 1 ? "<p class=\"same-product-hint\">共 " + w._groupSize + " 人許願此商品</p>" : "") +
           "<div class=\"progress\"><div class=\"progress-text\">❤️ <span class=\"count count-num\">" + count + "</span> / <span class=\"total\">" + TOTAL + "</span> 集氣</div>" +
           "<div class=\"progress-bar\"><div class=\"progress-fill\" style=\"width:" + Math.min(100, (count / TOTAL * 100)) + "%\"></div></div></div>" +
           "<button type=\"button\" class=\"cta active\">❤️ 我也想要 (+1 集氣)</button></div></div>";
@@ -506,13 +574,68 @@
         var counts = getCounts();
         document.querySelectorAll(".wish-card").forEach(function(card){
           var id = card.getAttribute("data-id");
-          if(id && counts[id] != null) updateCardUI(id, counts[id]);
+          if(!id) return;
+          var n = counts[id] != null ? counts[id] : 0;
+          updateCardCountOnly(id, n);
+          var cta = card.querySelector(".cta");
+          if(cta){
+            var voted = localStorage.getItem("wish_voted_" + id);
+            if(voted){
+              cta.classList.remove("active");
+              cta.classList.add("done");
+              cta.textContent = "❤️ 你已經集氣過囉!";
+              cta.disabled = true;
+            } else {
+              cta.classList.add("active");
+              cta.classList.remove("done");
+              cta.textContent = "❤️ 我也想要 (+1 集氣)";
+              cta.disabled = false;
+            }
+          }
         });
+      }
+      function renderWishPage(page){
+        var list = wishListCache;
+        var grid = document.getElementById("wishGrid");
+        var paginationEl = document.getElementById("wishPagination");
+        if(!grid || list.length === 0) return;
+        currentWishPage = page;
+        var totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
+        if(page < 1) page = 1;
+        if(page > totalPages) page = totalPages;
+        currentWishPage = page;
+        wishTotalPages = totalPages;
+        var start = (page - 1) * PAGE_SIZE;
+        var end = Math.min(start + PAGE_SIZE, list.length);
+        var pageList = list.slice(start, end);
+        grid.innerHTML = pageList.map(renderWishCard).join("");
+        bindWishCardButtons();
+        bindWishCardDetailClick();
+        applyCountsToCards();
+        if(paginationEl){
+          if(list.length <= PAGE_SIZE){
+            paginationEl.style.display = "none";
+            paginationEl.innerHTML = "";
+          } else {
+            paginationEl.style.display = "flex";
+            var html = "<button type=\"button\" class=\"arrow-btn\" data-prev aria-label=\"上一頁\">←</button>";
+            for(var p = 1; p <= totalPages; p++){
+              html += "<button type=\"button\" class=\"page-btn" + (p === page ? " active" : "") + "\" data-page=\"" + p + "\">" + p + "</button>";
+            }
+            html += "<button type=\"button\" class=\"arrow-btn\" data-next aria-label=\"下一頁\">→</button>";
+            paginationEl.innerHTML = html;
+            var prevBtn = paginationEl.querySelector("[data-prev]");
+            var nextBtn = paginationEl.querySelector("[data-next]");
+            if(prevBtn) prevBtn.disabled = (page <= 1);
+            if(nextBtn) nextBtn.disabled = (page >= totalPages);
+          }
+        }
       }
       function applyWishList(data){
         var list = (data && data.wishes) ? data.wishes : [];
         var grid = document.getElementById("wishGrid");
         if(!grid || list.length === 0) return;
+        list = groupAndSortWishList(list);
         wishListCache = list;
         var hint = document.getElementById("wishListLoadHint");
         if(hint) hint.style.display = "none";
@@ -522,7 +645,13 @@
           if(counts[id] == null) counts[id] = parseInt(w.supportCount, 10) || 0;
         });
         saveCounts(counts);
-        grid.innerHTML = list.map(renderWishCard).join("");
+        if(list.length <= PAGE_SIZE){
+          grid.innerHTML = list.map(renderWishCard).join("");
+          var paginationEl = document.getElementById("wishPagination");
+          if(paginationEl){ paginationEl.style.display = "none"; paginationEl.innerHTML = ""; }
+        } else {
+          renderWishPage(1);
+        }
         bindWishCardButtons();
         bindWishCardDetailClick();
         applyCountsToCards();
@@ -544,6 +673,11 @@
         var ctaEl = document.getElementById("detailCta");
         if(titleEl) titleEl.textContent = w.title || "許願";
         if(tagsEl) tagsEl.innerHTML = "<span class=\"tag tag-cat\">◆ " + escapeHtml(w.category || "其他") + "</span><span class=\"tag tag-status\">" + escapeHtml(w.status || "許願中") + "</span>";
+        var sameProductEl = document.getElementById("detailSameProduct");
+        if(sameProductEl){
+          if(w._groupSize > 1){ sameProductEl.textContent = "本商品共有 " + w._groupSize + " 人許願"; sameProductEl.style.display = "block"; }
+          else{ sameProductEl.textContent = ""; sameProductEl.style.display = "none"; }
+        }
         if(countEl) countEl.textContent = count;
         if(totalEl) totalEl.textContent = TOTAL;
         if(fillEl) fillEl.style.width = Math.min(100, (count / TOTAL * 100)) + "%";
@@ -559,7 +693,7 @@
         if(imagesEl){
           if(imgs.length) imagesEl.innerHTML = imgs.map(function(url){
             var u = escapeHtml(String(url).trim());
-            return "<img src=\"" + u + "\" alt=\"\" referrerpolicy=\"no-referrer\" loading=\"lazy\" onclick=\"openImageViewer('" + u + "');\" />";
+            return "<img src=\"" + u + "\" alt=\"\" referrerpolicy=\"no-referrer\" loading=\"lazy\" />";
           }).join("");
           else imagesEl.innerHTML = "";
         }
@@ -591,15 +725,6 @@
         if(countEl) countEl.textContent = n;
         if(fillEl) fillEl.style.width = Math.min(100, (n / TOTAL * 100)) + "%";
         if(ctaEl){ ctaEl.classList.remove("active"); ctaEl.classList.add("done"); ctaEl.textContent = "❤️ 你已經集氣過囉!"; ctaEl.disabled = true; }
-      }
-
-      // 圖片全螢幕預覽（不顯示 Cloudinary 網址）
-      function openImageViewer(src){
-        var viewer = document.getElementById("imageViewer");
-        var img = document.getElementById("imageViewerImg");
-        if(!viewer || !img) return;
-        img.src = src;
-        viewer.classList.add("show");
       }
 
       // 管理員：更新單筆許願（狀態 / 圖片）
@@ -635,19 +760,50 @@
         var hint = document.getElementById("wishListLoadHint");
         if(hint) hint.style.display = "block";
       }
+      function setGridLoading(){
+        var grid = document.getElementById("wishGrid");
+        if(grid) grid.innerHTML = "<p class=\"wish-grid-loading\">載入許願列表中…<br><span style=\"font-size:12px; font-weight:700;\">若較久可能是伺服器啟動中（約 5–10 秒）</span></p>";
+      }
+      function setGridEmpty(){
+        var grid = document.getElementById("wishGrid");
+        if(grid) grid.innerHTML = "<p class=\"wish-grid-empty\" style=\"grid-column:1/-1; text-align:center; color:var(--muted); padding:40px 16px; font-size:15px; font-weight:800;\">尚無許願，點擊上方「＋ 發起許願」新增</p>";
+      }
+      /** 送出前檢查：是否已有相同連結或相似標題的許願（依目前載入的列表） */
+      function checkSimilarWish(payload){
+        var list = wishListCache || [];
+        if(list.length === 0) return { similar: false };
+        var newLink = (payload.link || "").trim().toLowerCase().replace(/\/+$/, "");
+        var newTitle = (payload.title || "").trim().toLowerCase();
+        if(!newTitle) return { similar: false };
+        for(var i = 0; i < list.length; i++){
+          var w = list[i];
+          var wLink = (w.link || "").trim().toLowerCase().replace(/\/+$/, "");
+          if(newLink && wLink && newLink === wLink) return { similar: true, reason: "link" };
+          var wTitle = (w.title || "").trim().toLowerCase();
+          if(newTitle && wTitle){
+            if(newTitle === wTitle) return { similar: true, reason: "title" };
+            if(newTitle.length >= 2 && wTitle.indexOf(newTitle) >= 0) return { similar: true, reason: "title" };
+            if(wTitle.length >= 2 && newTitle.indexOf(wTitle) >= 0) return { similar: true, reason: "title" };
+          }
+        }
+        return { similar: false };
+      }
       function loadWishList(){
         if(!WISH_LIST_URL) return Promise.resolve();
         var grid = document.getElementById("wishGrid");
         if(!grid) return Promise.resolve();
+        setGridLoading();
         var listUrl = WISH_LIST_URL;
         return fetch(listUrl)
           .then(function(res){ return res.ok ? res.json().catch(function(){ return null; }) : Promise.reject(new Error("無法載入")); })
           .then(function(data){
             if(data && data.wishes && data.wishes.length > 0) applyWishList(data);
+            else setGridEmpty();
           })
           .catch(function(){
             window.__wishPoolListCallback = function(data){
               if(data && data.wishes && data.wishes.length > 0) applyWishList(data);
+              else setGridEmpty();
               var s = document.getElementById("wishListJsonpScript");
               if(s) s.remove();
             };
@@ -655,7 +811,7 @@
             var script = document.createElement("script");
             script.id = "wishListJsonpScript";
             script.src = listUrl + sep + "callback=__wishPoolListCallback";
-            script.onerror = function(){ showListLoadError(); };
+            script.onerror = function(){ showListLoadError(); setGridEmpty(); };
             document.head.appendChild(script);
           })
           .finally(function(){
@@ -663,6 +819,20 @@
             applyCountsToCards();
           });
       }
+
+      document.addEventListener("click", function(e){
+        var pagination = document.getElementById("wishPagination");
+        if(!pagination || !pagination.contains(e.target)) return;
+        var pageBtn = e.target.closest(".page-btn");
+        var arrowBtn = e.target.closest(".arrow-btn");
+        if(pageBtn){
+          var p = parseInt(pageBtn.getAttribute("data-page"), 10);
+          if(!isNaN(p)) renderWishPage(p);
+        } else if(arrowBtn && !arrowBtn.disabled){
+          if(arrowBtn.getAttribute("data-prev") !== null) renderWishPage(currentWishPage - 1);
+          else renderWishPage(currentWishPage + 1);
+        }
+      });
 
       var feedTickerTimer = null;
       var feedTickerIdx = 0;
@@ -714,6 +884,10 @@
       var nickInput = document.getElementById("nickInput");
       var modalSkip = document.getElementById("modalSkip");
       var modalOk = document.getElementById("modalOk");
+      var adminModal = document.getElementById("adminModal");
+      var adminPwdInput = document.getElementById("adminPasswordInput");
+      var adminCancel = document.getElementById("adminCancel");
+      var adminConfirm = document.getElementById("adminConfirm");
       var pendingSupport = null;
 
       var formModalClose = document.getElementById("formModalClose");
@@ -734,10 +908,25 @@
       }
       if(btnAdmin){
         btnAdmin.addEventListener("click", function(){
-          var pwd = window.prompt("請輸入管理員密碼（僅闆闆自己使用）");
-          if(pwd == null) return;
+          if(adminPwdInput) adminPwdInput.value = "";
+          if(adminModal) adminModal.classList.add("show");
+        });
+      }
+      if(adminCancel){
+        adminCancel.addEventListener("click", function(){
+          if(adminModal) adminModal.classList.remove("show");
+        });
+      }
+      if(adminConfirm){
+        adminConfirm.addEventListener("click", function(){
+          var pwd = adminPwdInput ? adminPwdInput.value : "";
+          if(!pwd){
+            alert("請先輸入管理員密碼。");
+            return;
+          }
           if(pwd === ADMIN_PASSWORD){
             isAdmin = true;
+            if(adminModal) adminModal.classList.remove("show");
             alert("已開啟管理員模式，點進許願卡片可看到編輯按鈕。");
           }else{
             alert("密碼錯誤，無法開啟管理員模式。");
@@ -751,12 +940,8 @@
         var detailCta = document.getElementById("detailCta");
         var btnReplace = document.getElementById("btnAdminReplaceImage");
         var btnCloseWish = document.getElementById("btnAdminCloseWish");
-        var imageViewer = document.getElementById("imageViewer");
         if(detailClose) detailClose.addEventListener("click", closeWishDetail);
         if(detailModal) detailModal.addEventListener("click", function(e){ if(e.target === detailModal) closeWishDetail(); });
-        if(imageViewer){
-          imageViewer.addEventListener("click", function(){ imageViewer.classList.remove("show"); });
-        }
         if(detailCta){
           detailCta.addEventListener("click", function(e){
             e.stopPropagation();
@@ -1005,10 +1190,20 @@
                 alert("圖片上傳未成功（可能被瀏覽器或網路阻擋）。\n\n這筆許願會照常送出，但卡片暫時不會有圖片。");
               }
               if(btn) btn.textContent = "送出中…";
+              var check = checkSimilarWish(payload);
+              if(check.similar && !confirm("許願池已有類似許願，仍要送出嗎？\n\n若為同一商品，建議直接到該許願卡按「我也想要」集氣。")){
+                if(btn){ btn.disabled = false; btn.textContent = "送出許願"; }
+                return;
+              }
               doSubmitWish(payload);
             })
             .catch(function(){
               if(btn) btn.textContent = "送出中…";
+              var check = checkSimilarWish(payload);
+              if(check.similar && !confirm("許願池已有類似許願，仍要送出嗎？\n\n若為同一商品，建議直接到該許願卡按「我也想要」集氣。")){
+                if(btn){ btn.disabled = false; btn.textContent = "送出許願"; }
+                return;
+              }
               doSubmitWish(payload);
             });
         });
@@ -1081,7 +1276,32 @@
         });
       }
 
+      /** 呼叫後端 API：對指定許願 +1 集氣，寫入試算表 supportCount */
+      function apiAddSupport(wishId){
+        if(!WISH_SUBMIT_URL) return Promise.reject(new Error("尚未設定 API 網址"));
+        var payload = { action: "addSupport", wishId: String(wishId) };
+        return fetch(WISH_SUBMIT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+          body: JSON.stringify(payload)
+        })
+          .then(function(res){ return res.json().catch(function(){ return {}; }); })
+          .then(function(data){
+            if(data && data.ok === false) return Promise.reject(new Error(data.error || "集氣失敗"));
+            return { ok: true, supportCount: typeof data.supportCount === "number" ? data.supportCount : (parseInt(data.supportCount, 10) || 0) };
+          });
+      }
       function doSupport(wishId, title, nick){
+        if(WISH_SUBMIT_URL){
+          return apiAddSupport(wishId).then(function(data){
+            var n = data.supportCount;
+            var counts = getCounts();
+            counts[wishId] = n;
+            saveCounts(counts);
+            addToFeed(wishId, title, nick || "有人");
+            updateCardUI(wishId, n);
+          });
+        }
         var counts = getCounts();
         var n = (counts[wishId] || 0) + 1;
         if(n > TOTAL) n = TOTAL;
@@ -1107,10 +1327,22 @@
           cta.disabled = true;
         }
       }
+      function updateCardCountOnly(wishId, n){
+        var card = document.querySelector(".wish-card[data-id='" + wishId + "']");
+        if(!card) return;
+        var countEl = card.querySelector(".progress .count");
+        var fillEl = card.querySelector(".progress-fill");
+        var totalEl = card.querySelector(".progress .total");
+        var total = totalEl ? parseInt(totalEl.textContent, 10) : TOTAL;
+        if(countEl) countEl.textContent = n;
+        if(fillEl) fillEl.style.width = (n / total * 100) + "%";
+      }
       function openNickModal(wishId, title, cb){
+        closeWishDetail();
         pendingSupport = { wishId: wishId, title: title, cb: cb };
         if(nickInput) nickInput.value = "";
         if(nickModal) nickModal.classList.add("show");
+        setTimeout(function(){ if(nickInput){ nickInput.focus(); } }, 80);
       }
       function closeNickModal(){
         if(nickModal) nickModal.classList.remove("show");
@@ -1118,11 +1350,15 @@
       }
       function submitNick(){
         var nick = nickInput ? nickInput.value.trim() : "";
-        if(pendingSupport){
-          doSupport(pendingSupport.wishId, pendingSupport.title, nick || null);
-          if(pendingSupport.cb) pendingSupport.cb();
+        if(!pendingSupport){ closeNickModal(); return; }
+        var cb = pendingSupport.cb;
+        var p = doSupport(pendingSupport.wishId, pendingSupport.title, nick || null);
+        if(p && typeof p.then === "function"){
+          p.then(function(){ if(cb) cb(); }).catch(function(err){ alert("集氣失敗，請稍後再試。\n" + (err && err.message ? err.message : "")); }).finally(closeNickModal);
+        } else {
+          if(cb) cb();
+          closeNickModal();
         }
-        closeNickModal();
       }
       if(modalSkip){ modalSkip.addEventListener("click", function(){ submitNick(); }); }
       if(modalOk){ modalOk.addEventListener("click", submitNick); }

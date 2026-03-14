@@ -120,14 +120,198 @@
       color:var(--muted);
     }
     .back-link{
-      font-size:.8rem;
-      margin-top:6px;
+      font-size:.82rem;
+      margin-top:10px;
       display:inline-flex;
       align-items:center;
-      gap:4px;
-      color:#1d4ed8;
+      gap:8px;
+      color:#f9fafb;
       text-decoration:none;
+      padding:8px 14px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#6366f1,#ec4899);
+      border:none;
+      font-weight:900;
+      letter-spacing:.02em;
+      box-shadow:0 10px 24px rgba(15,23,42,.35);
+      transition:background .18s ease, box-shadow .18s ease, transform .18s ease, filter .18s ease;
     }
+    .back-link::before{
+      content:"↩";
+      font-size:.9rem;
+    }
+    .back-link:hover{
+      filter:brightness(1.05);
+      box-shadow:0 14px 30px rgba(15,23,42,.45);
+      transform:translateY(-1px);
+    }
+    .session-card{
+      margin-top:12px;
+      border-radius:20px;
+      background:var(--card);
+      border:1px solid rgba(226,232,240,.9);
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+      gap:18px;
+      padding:16px 18px 16px;
+      box-shadow:0 18px 36px rgba(15,23,42,.08);
+    }
+    .session-main h2{
+      margin:0;
+      font-size:1.02rem;
+      font-weight:800;
+    }
+    .session-header{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:6px;
+    }
+    .session-ip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:.76rem;
+      font-weight:800;
+      background:#fef9c3;
+      color:#92400e;
+      border:1px solid #fde68a;
+    }
+    .session-meta{
+      margin:6px 0 4px;
+      font-size:.78rem;
+      color:var(--muted);
+    }
+    .session-status-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin:4px 0 6px;
+      font-size:.76rem;
+    }
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:3px 8px;
+      border-radius:999px;
+      font-weight:800;
+    }
+    .status-pill.main{
+      background:#ecfdf5;
+      color:#166534;
+      border:1px solid #bbf7d0;
+    }
+    .status-pill.soon{
+      background:#fef3c7;
+      color:#92400e;
+      border:1px solid #fdba74;
+    }
+    .status-pill.live{
+      background:#fee2e2;
+      color:#b91c1c;
+      border:1px solid #fecaca;
+    }
+    .status-pill.ended{
+      background:#e5e7eb;
+      color:#6b7280;
+      border:1px solid #d1d5db;
+    }
+    .session-times{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:8px;
+    }
+    .time-box{
+      flex:1 1 150px;
+      border-radius:16px;
+      background:#f9fafb;
+      border:1px solid rgba(226,232,240,.9);
+      padding:8px 10px;
+      font-size:.8rem;
+    }
+    .time-box h3{
+      margin:0 0 4px;
+      font-size:.78rem;
+      font-weight:800;
+      color:#4b5563;
+    }
+    .time-box strong{
+      display:block;
+      font-size:.9rem;
+      margin-top:2px;
+    }
+    .session-countdown{
+      margin-top:8px;
+      padding:9px 10px;
+      border-radius:16px;
+      background:#f9fafb;
+      border:1px dashed rgba(148,163,184,.7);
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+    .session-countdown-label{
+      font-size:.78rem;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .session-countdown-label .dot-live{
+      width:8px;height:8px;border-radius:999px;
+      background:#f97316;
+      box-shadow:0 0 0 4px rgba(248,196,113,.6);
+    }
+    .session-countdown-text{
+      font-size:.96rem;
+      font-weight:900;
+    }
+    .session-image{
+      border-radius:18px;
+      overflow:hidden;
+      background:#0f172a;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .session-image img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .session-image-placeholder{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#dbeafe,#f5f3ff);
+      color:#4b5563;
+      font-size:2.4rem;
+      font-weight:900;
+    }
+    .session-card.today{
+      border-color:#6366f1;
+      box-shadow:0 22px 46px rgba(79,70,229,.25);
+      position:relative;
+    }
+    .session-card.today::before{
+      content:"Today";
+      position:absolute;
+      top:10px;
+      right:12px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:#4f46e5;
+      font-size:.7rem;
+      font-weight:900;
+    }
+
     footer{
       margin-top:10px;
       padding-top:8px;
@@ -139,6 +323,9 @@
       body{padding:18px 10px 20px;}
       .page{border-radius:20px;padding:16px 12px 20px;}
       header{flex-direction:column;align-items:flex-start;}
+      .session-card{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -147,12 +334,7 @@
     <header>
       <div>
         <div class="title-main">東京連線行程表（概略）</div>
-        <div class="title-sub">每天大概在哪裡、什麼時段可能會連線，給客人一個心理準備。</div>
-        <div class="meta-row">
-          <div><span class="meta-label">行程區間：</span><span id="tripRange"></span></div>
-          <div><span class="meta-label">預計連線日：</span><span id="liveDays"></span></div>
-        </div>
-        <a href="index.html" class="back-link">← 回到代購首頁</a>
+        <a href="index.html" class="back-link">回到代購首頁</a>
       </div>
       <div class="tagline">
         <div class="tag-pill">
@@ -163,13 +345,7 @@
       </div>
     </header>
 
-    <div class="card">
-      <div class="section">
-        <h2>本次東京行程規劃</h2>
-        <p>下方資訊會自動帶入跟首頁相同的行程設定，你只要改首頁 `CONFIG` 裡的行程資料，這一頁也會同步更新。</p>
-      </div>
-      <div class="timeline" id="timeline"></div>
-    </div>
+    <div id="sessionList"></div>
 
     <footer>
       本頁僅為行程概略說明，實際行程可能會依天氣、交通與現場狀況微調。
@@ -177,45 +353,265 @@
   </div>
 
   <script>
-    // 與首頁相同的行程資料（可視需要維持同步）
+    // CMS：與許願池同一個 GAS 網址，填了會從試算表「行程」讀取
+    var CMS_ITINERARY_URL = ""; // 例： "https://script.google.com/macros/s/你的ID/exec"
+    // 與首頁相同的行程資料（可視需要維持同步；有設 CMS 會從試算表覆寫）
     const CONFIG = {
       tripRangeText: "2026/04/26 – 2026/05/04（9天）",
       liveDaysText: "Day 3、Day 6（暫定，日本時間晚間 20:00 左右）",
       itinerary: [
-        { day: "Day 1", title: "出發日｜抵達＆交通移動", items: ["抵達/交通移動", "踩點（不一定連線）"], tags:["移動日"] },
-        { day: "Day 2", title: "巡點日｜確認品項", items: ["門市/商場巡點", "確認可買清單與限購規則"], tags:["踩點","確認"] },
-        { day: "Day 3", title: "連線代購 Day（暫定）", items: ["白天採買", "晚間連線收單＋回覆"], tags:["連線","採買"] },
-        { day: "Day 4", title: "小旅行｜放風日", items: ["景點/散步/咖啡", "視情況補貨巡點"], tags:["旅行"] },
-        { day: "Day 5", title: "追加巡點", items: ["追加採買（視現場）", "整理未成單/缺貨回報"], tags:["追加","整理"] },
-        { day: "Day 6", title: "連線代購 Day（暫定）", items: ["白天追加採買", "晚間連線確認/收尾"], tags:["連線","收尾"] },
-        { day: "Day 7", title: "彈性日", items: ["補缺/找貨/行程彈性", "必要時短連線"], tags:["彈性"] },
-        { day: "Day 8", title: "整理日", items: ["整理清單/收尾", "準備返程"], tags:["整理"] },
-        { day: "Day 9", title: "回台日", items: ["返程移動", "回台後公告出貨/付款節點"], tags:["返程","公告"] },
+        {
+          day: "Day 1",
+          title: "出發日｜抵達＆交通移動",
+          items: ["抵達/交通移動", "踩點（不一定連線）"],
+          tags:["移動日"],
+          imageUrl: "https://res.cloudinary.com/dtll13zax/image/upload/v1773427600/QQ_bfmyjy.jpg", // Day1 圖片
+          twStart: "03/13 09:00",  // 台灣時間開始
+          twEnd:   "03/13 12:00",  // 台灣時間結束
+          jpStart: "03/13 10:00",  // 日本時間開始
+          jpEnd:   "03/13 13:00",  // 日本時間結束
+          countdownTarget: "2026-03-13T09:00:00+08:00" // 倒數目標（台灣時間）
+        },
+        {
+          day: "Day 2",
+          title: "巡點日｜確認品項",
+          items: ["門市/商場巡點", "確認可買清單與限購規則"],
+          tags:["踩點","確認"],
+          imageUrl: "",
+          twStart: "03/14 09:00",
+          twEnd:   "03/14 12:00",
+          jpStart: "03/14 10:00",
+          jpEnd:   "03/14 13:00",
+          countdownTarget: "2026-03-14T09:00:00+08:00"
+        },
+        {
+          day: "Day 3",
+          title: "連線代購 Day（暫定）",
+          items: ["白天採買", "晚間連線收單＋回覆"],
+          tags:["連線","採買"],
+          imageUrl: "",
+          twStart:"03/15 09:00",
+          twEnd:"03/15 12:00",
+          jpStart:"03/15 10:00",
+          jpEnd:"03/15 13:00",
+          countdownTarget:"2026-03-15T09:00:00+08:00"
+        },
+        {
+          day: "Day 4",
+          title: "小旅行｜放風日",
+          items: ["景點/散步/咖啡", "視情況補貨巡點"],
+          tags:["旅行"],
+          imageUrl: "",
+          twStart:"03/16 09:00",
+          twEnd:"03/16 12:00",
+          jpStart:"03/16 10:00",
+          jpEnd:"03/16 13:00",
+          countdownTarget:"2026-03-16T09:00:00+08:00"
+        },
+        {
+          day: "Day 5",
+          title: "追加巡點",
+          items: ["追加採買（視現場）", "整理未成單/缺貨回報"],
+          tags:["追加","整理"],
+          imageUrl: "",
+          twStart:"03/17 09:00",
+          twEnd:"03/17 12:00",
+          jpStart:"03/17 10:00",
+          jpEnd:"03/17 13:00",
+          countdownTarget:"2026-03-17T09:00:00+08:00"
+        },
+        {
+          day: "Day 6",
+          title: "連線代購 Day（暫定）",
+          items: ["白天追加採買", "晚間連線確認/收尾"],
+          tags:["連線","收尾"],
+          imageUrl: "",
+          twStart:"03/18 09:00",
+          twEnd:"03/18 12:00",
+          jpStart:"03/18 10:00",
+          jpEnd:"03/18 13:00",
+          countdownTarget:"2026-03-18T09:00:00+08:00"
+        },
+        {
+          day: "Day 7",
+          title: "彈性日",
+          items: ["補缺/找貨/行程彈性", "必要時短連線"],
+          tags:["彈性"],
+          imageUrl: "",
+          twStart:"03/19 09:00",
+          twEnd:"03/19 12:00",
+          jpStart:"03/19 10:00",
+          jpEnd:"03/19 13:00",
+          countdownTarget:"2026-03-19T09:00:00+08:00"
+        },
+        {
+          day: "Day 8",
+          title: "整理日",
+          items: ["整理清單/收尾", "準備返程"],
+          tags:["整理"],
+          imageUrl: "",
+          twStart:"03/20 09:00",
+          twEnd:"03/20 12:00",
+          jpStart:"03/20 10:00",
+          jpEnd:"03/20 13:00",
+          countdownTarget:"2026-03-20T09:00:00+08:00"
+        },
+        {
+          day: "Day 9",
+          title: "回台日",
+          items: ["返程移動", "回台後公告出貨/付款節點"],
+          tags:["返程","公告"],
+          imageUrl: "",
+          twStart:"03/21 09:00",
+          twEnd:"03/21 12:00",
+          jpStart:"03/21 10:00",
+          jpEnd:"03/21 13:00",
+          countdownTarget:"2026-03-21T09:00:00+08:00"
+        },
       ],
     };
 
     const $ = (sel) => document.querySelector(sel);
 
     function renderItinerary(){
-      const trip = $("#tripRange");
-      const live = $("#liveDays");
-      if(trip) trip.textContent = CONFIG.tripRangeText;
-      if(live) live.textContent = CONFIG.liveDaysText;
-      const el = $("#timeline");
-      if(!el) return;
-      el.innerHTML = CONFIG.itinerary.map(d => `
-        <div class="day">
-          <div class="badge">${d.day}</div>
-          <div>
-            <h4>${d.title}</h4>
-            <ul>${d.items.map(x=>`<li>${x}</li>`).join("")}</ul>
-            <div class="tagrow">${(d.tags||[]).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
-          </div>
-        </div>
-      `).join("");
+      // 已移除行程區間與預計連線日文字
     }
 
-    renderItinerary();
+    // 依 Day 1、Day 2… 產生卡片
+    function renderSessions(){
+      const el = document.getElementById("sessionList");
+      if(!el) return;
+      el.innerHTML = CONFIG.itinerary.map(function(d, idx){
+        const dayLabel = d.day || ("Day " + (idx+1));
+        const firstLine = (d.items && d.items[0]) ? d.items[0] : "";
+        const hasTimes = d.twStart && d.twEnd && d.jpStart && d.jpEnd;
+        const hasCountdown = d.countdownTarget;
+        return `
+          <div class="session-card" ${hasCountdown ? `data-target="${d.countdownTarget}"` : ""}>
+            <div class="session-main">
+              <div class="session-header">
+                <span class="session-ip">${dayLabel}</span>
+                <h2>${d.title}</h2>
+              </div>
+              ${hasCountdown ? `
+              <div class="session-status-row">
+                <span class="status-pill main">預告中</span>
+              </div>
+              ` : ""}
+              <div class="session-meta">${firstLine ? "重點：" + firstLine : "行程重點待補充"}</div>
+              <div class="tagrow">
+                ${(d.tags||[]).map(t=>`<span class="tag">${t}</span>`).join("")}
+              </div>
+              ${hasCountdown ? `
+              <div class="session-countdown">
+                <div class="session-countdown-label">
+                  <span class="dot-live"></span>
+                  <span>距離開始</span>
+                </div>
+                <div class="session-countdown-text">--天 --小時 --分 --秒</div>
+              </div>
+              ` : ""}
+              ${hasTimes ? `
+              <div class="session-times">
+                <div class="time-box">
+                  <h3>TW 台灣時間</h3>
+                  <strong>${d.twStart}</strong>
+                  <div>～ ${d.twEnd}</div>
+                </div>
+                <div class="time-box">
+                  <h3>JP 日本時間</h3>
+                  <strong>${d.jpStart}</strong>
+                  <div>～ ${d.jpEnd}</div>
+                </div>
+              </div>
+              ` : ""}
+            </div>
+            <div class="session-image">
+              ${
+                d.imageUrl
+                  ? `<img src="${d.imageUrl}" alt="${dayLabel} 圖片" loading="lazy">`
+                  : `<div class="session-image-placeholder">${idx+1}</div>`
+              }
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function initCountdowns(){
+      const cards = document.querySelectorAll(".session-card[data-target]");
+      if(!cards.length) return;
+
+      function update(){
+        const now = new Date();
+        cards.forEach(function(card){
+          const targetStr = card.getAttribute("data-target");
+          if(!targetStr) return;
+          const target = new Date(targetStr);
+          if(isNaN(target.getTime())) return;
+          const display = card.querySelector(".session-countdown-text");
+          const statusEl = card.querySelector(".status-pill");
+          if(!display) return;
+          let diff = target - now;
+          if(diff <= 0){
+            display.textContent = "0天 0小時 0分 0秒";
+            if(statusEl){
+              statusEl.textContent = "進行中";
+              statusEl.classList.remove("main","soon","ended");
+              statusEl.classList.add("live");
+            }
+            return;
+          }
+          const totalSec = Math.floor(diff / 1000);
+          const days = Math.floor(totalSec / 86400);
+          const hours = Math.floor((totalSec % 86400) / 3600);
+          const mins = Math.floor((totalSec % 3600) / 60);
+          const secs = totalSec % 60;
+          display.textContent = `${days}天 ${hours}小時 ${mins}分 ${secs}秒`;
+          if(statusEl){
+            statusEl.classList.remove("main","soon","live","ended");
+            if(days === 0 && diff <= 3600*1000){
+              statusEl.textContent = "即將開始";
+              statusEl.classList.add("soon");
+            }else{
+              statusEl.textContent = "預告中";
+              statusEl.classList.add("main");
+            }
+          }
+
+          // 今日高亮（依目標日期判斷）
+          const targetDate = target.toDateString();
+          const today = now.toDateString();
+          if(targetDate === today){
+            card.classList.add("today");
+          }else{
+            card.classList.remove("today");
+          }
+        });
+      }
+
+      update();
+      setInterval(update, 1000);
+    }
+
+    function loadCmsItinerary(){
+      var url = (CMS_ITINERARY_URL || "").trim().replace(/\?.*$/, "");
+      if(!url) return Promise.resolve();
+      var u = url + (url.indexOf("?") >= 0 ? "&" : "?") + "type=itinerary";
+      return fetch(u).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){
+        if(d && d.itinerary && d.itinerary.length) CONFIG.itinerary = d.itinerary;
+      }).catch(function(){});
+    }
+    function doInit(){
+      renderItinerary();
+      renderSessions();
+      initCountdowns();
+    }
+    if(CMS_ITINERARY_URL && CMS_ITINERARY_URL.trim()){
+      loadCmsItinerary().then(doInit).catch(doInit);
+    } else {
+      doInit();
+    }
   </script>
 </body>
 </html>

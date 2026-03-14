@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CMS 後台管理</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, "Microsoft JhengHei", sans-serif; margin: 0; padding: 20px; background: #f1f5f9; color: #1e293b; }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 20px; }
+    .card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .login-form label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 14px; }
+    .login-form input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 14px; font-size: 14px; }
+    .btn { padding: 10px 18px; border-radius: 8px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-primary { background: #6366f1; color: #fff; }
+    .btn-primary:hover { background: #4f46e5; }
+    .btn-ghost { background: #e2e8f0; color: #475569; }
+    .btn-ghost:hover { background: #cbd5e1; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .error { color: #dc2626; font-size: 13px; margin-top: 8px; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .section-title { font-size: 1.1rem; font-weight: 800; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    th { background: #f8fafc; font-weight: 700; }
+    input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
+    textarea { min-height: 50px; resize: vertical; }
+    .row-actions { white-space: nowrap; }
+    .row-actions button { padding: 4px 8px; font-size: 12px; margin-right: 4px; cursor: pointer; border-radius: 4px; border: 1px solid #cbd5e1; background: #fff; }
+    .row-actions button:hover { background: #f1f5f9; }
+    .row-actions button.del { color: #dc2626; border-color: #fecaca; }
+    .toolbar { margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .status { font-size: 13px; color: #64748b; margin-top: 8px; }
+    .status.ok { color: #16a34a; }
+    .status.err { color: #dc2626; }
+    #loginBox { display: block; }
+    #dashboard { display: none; }
+    #dashboard.show { display: block; }
+    #loginBox.hide { display: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="loginBox">
+      <div class="card">
+        <h1>CMS 後台登入</h1>
+        <p style="margin:0 0 16px; color:#64748b; font-size:14px;">請輸入與 GAS 中 <code>CMS_SECRET</code> 相同的密碼，以及 GAS 部署網址。</p>
+        <form class="login-form" id="loginForm">
+          <label>GAS 部署網址</label>
+          <input type="url" id="gasUrl" placeholder="https://script.google.com/macros/s/你的ID/exec" required />
+          <label>後台密碼</label>
+          <input type="password" id="loginPwd" placeholder="請輸入後台密碼" required />
+          <button type="submit" class="btn btn-primary">登入</button>
+          <p id="loginError" class="error" style="display:none;"></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="dashboard">
+      <div class="dashboard-header">
+        <h1>CMS 後台管理</h1>
+        <button type="button" class="btn btn-ghost" id="btnLogout">登出</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title">📢 公布欄</div>
+        <div class="toolbar">
+          <button type="button" class="btn btn-primary" id="bulletinsLoad">載入目前資料</button>
+          <button type="button" class="btn btn-ghost" id="bulletinsAdd">新增一則</button>
+          <button type="button" class="btn btn-primary" id="bulletinsSave">儲存</button>
+        </div>
+        <div id="bulletinsStatus" class="status"></div>
+        <table id="bulletinsTable">
+          <thead><tr><th>類型</th><th>內容</th><th></th></tr></thead>
+          <tbody id="bulletinsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="section-title">💰 儲值方案</div>
+        <div class="toolbar">
+          <button type="button" class="btn btn-primary" id="depositLoad">載入目前資料</button>
+          <button type="button" class="btn btn-ghost" id="depositAdd">新增一筆</button>
+          <button type="button" class="btn btn-primary" id="depositSave">儲存</button>
+        </div>
+        <div id="depositStatus" class="status"></div>
+        <table id="depositTable">
+          <thead><tr><th>金額 amount</th><th>贈送 bonus</th><th>方案名稱 label</th><th>小標 badge</th><th></th></tr></thead>
+          <tbody id="depositBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="section-title">📅 行程</div>
+        <div class="toolbar">
+          <button type="button" class="btn btn-primary" id="itineraryLoad">載入目前資料</button>
+          <button type="button" class="btn btn-ghost" id="itineraryAdd">新增一天</button>
+          <button type="button" class="btn btn-primary" id="itinerarySave">儲存</button>
+        </div>
+        <div id="itineraryStatus" class="status"></div>
+        <div style="overflow-x:auto;">
+          <table id="itineraryTable">
+            <thead>
+              <tr>
+                <th>day</th><th>title</th><th>items (用|分隔)</th><th>tags (用|分隔)</th>
+                <th>imageUrl</th><th>twStart</th><th>twEnd</th><th>jpStart</th><th>jpEnd</th><th>countdownTarget</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="itineraryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var STORAGE_URL = "cms_gas_url";
+      var STORAGE_SECRET = "cms_secret";
+
+      function getBaseUrl(){ return (sessionStorage.getItem(STORAGE_URL) || "").replace(/\?.*$/, ""); }
+      function getSecret(){ return sessionStorage.getItem(STORAGE_SECRET) || ""; }
+      function setSession(url, secret){ sessionStorage.setItem(STORAGE_URL, url); sessionStorage.setItem(STORAGE_SECRET, secret); }
+      function clearSession(){ sessionStorage.removeItem(STORAGE_URL); sessionStorage.removeItem(STORAGE_SECRET); }
+
+      function apiPost(payload){
+        var url = getBaseUrl();
+        if(!url) return Promise.reject(new Error("請先登入"));
+        payload.secret = getSecret();
+        return fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+          body: JSON.stringify(payload)
+        }).then(function(r){ return r.json().catch(function(){ return {}; }); });
+      }
+      function apiGet(type){
+        var url = getBaseUrl();
+        if(!url) return Promise.reject(new Error("請先登入"));
+        var u = url + (url.indexOf("?") >= 0 ? "&" : "?") + "type=" + type;
+        return fetch(u).then(function(r){ return r.ok ? r.json() : {}; });
+      }
+
+      var loginForm = document.getElementById("loginForm");
+      var loginError = document.getElementById("loginError");
+      var loginBox = document.getElementById("loginBox");
+      var dashboard = document.getElementById("dashboard");
+      var gasUrlInput = document.getElementById("gasUrl");
+      var loginPwdInput = document.getElementById("loginPwd");
+
+      function showLogin(){ loginBox.classList.remove("hide"); dashboard.classList.remove("show"); }
+      function showDashboard(){ loginBox.classList.add("hide"); dashboard.classList.add("show"); }
+
+      if(getBaseUrl() && getSecret()){
+        apiPost({ action: "verify" }).then(function(data){
+          if(data && data.ok){ showDashboard(); loadAll(); }
+          else{ clearSession(); showLogin(); }
+        }).catch(function(){ clearSession(); showLogin(); });
+      }
+
+      loginForm.addEventListener("submit", function(e){
+        e.preventDefault();
+        var url = (gasUrlInput.value || "").trim();
+        var secret = (loginPwdInput.value || "").trim();
+        if(!url || !secret){ loginError.textContent = "請填寫網址與密碼"; loginError.style.display = "block"; return; }
+        loginError.style.display = "none";
+        setSession(url, secret);
+        apiPost({ action: "verify" }).then(function(data){
+          if(data && data.ok){ showDashboard(); loadAll(); }
+          else{ loginError.textContent = data && data.error ? data.error : "密碼錯誤"; loginError.style.display = "block"; clearSession(); }
+        }).catch(function(err){ loginError.textContent = "無法連線，請檢查網址與網路"; loginError.style.display = "block"; clearSession(); });
+      });
+
+      document.getElementById("btnLogout").addEventListener("click", function(){ clearSession(); showLogin(); });
+
+      function setStatus(id, text, isOk){ var el = document.getElementById(id); if(el){ el.textContent = text; el.className = "status " + (isOk === true ? "ok" : isOk === false ? "err" : ""); } }
+      function loadAll(){ loadBulletins(); loadDeposit(); loadItinerary(); }
+
+      // ---------- 公布欄 ----------
+      function loadBulletins(){
+        apiGet("bulletins").then(function(d){
+          var list = (d && d.bulletins) ? d.bulletins : [];
+          var tbody = document.getElementById("bulletinsBody");
+          tbody.innerHTML = list.map(function(b, i){
+            return "<tr data-i=\"" + i + "\"><td><select class=\"b-type\"><option value=\"info\"" + (b.type==="info"?" selected":"") + ">info</option><option value=\"warn\"" + (b.type==="warn"?" selected":"") + ">warn</option></select></td><td><textarea class=\"b-text\">" + escapeHtml(b.text || "") + "</textarea></td><td class=\"row-actions\"><button type=\"button\" class=\"del\" data-remove>刪除</button></td></tr>";
+          }).join("");
+          bindBulletinsRemove();
+        }).catch(function(){ setStatus("bulletinsStatus", "載入失敗", false); });
+      }
+      function escapeHtml(s){ var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+      function bindBulletinsRemove(){
+        document.querySelectorAll("#bulletinsBody [data-remove]").forEach(function(btn){
+          btn.addEventListener("click", function(){ btn.closest("tr").remove(); });
+        });
+      }
+      document.getElementById("bulletinsLoad").addEventListener("click", function(){ setStatus("bulletinsStatus", "載入中…"); loadBulletins(); setStatus("bulletinsStatus", "已載入", true); });
+      document.getElementById("bulletinsAdd").addEventListener("click", function(){
+        var tbody = document.getElementById("bulletinsBody");
+        tbody.insertAdjacentHTML("beforeend", "<tr><td><select class=\"b-type\"><option value=\"info\" selected>info</option><option value=\"warn\">warn</option></select></td><td><textarea class=\"b-text\" placeholder=\"公告內容\"></textarea></td><td class=\"row-actions\"><button type=\"button\" class=\"del\" data-remove>刪除</button></td></tr>");
+        bindBulletinsRemove();
+      });
+      document.getElementById("bulletinsSave").addEventListener("click", function(){
+        var rows = document.querySelectorAll("#bulletinsBody tr");
+        var bulletins = [];
+        rows.forEach(function(tr){
+          var typeEl = tr.querySelector(".b-type");
+          var textEl = tr.querySelector(".b-text");
+          var text = textEl ? textEl.value.trim() : "";
+          if(text) bulletins.push({ type: typeEl ? typeEl.value : "info", text: text });
+        });
+        setStatus("bulletinsStatus", "儲存中…");
+        apiPost({ action: "updateBulletins", bulletins: bulletins }).then(function(data){
+          if(data && data.ok){ setStatus("bulletinsStatus", "已儲存", true); }
+          else{ setStatus("bulletinsStatus", (data && data.error) || "儲存失敗", false); }
+        }).catch(function(){ setStatus("bulletinsStatus", "儲存失敗（網路錯誤）", false); });
+      });
+
+      // ---------- 儲值方案 ----------
+      function loadDeposit(){
+        apiGet("deposit").then(function(d){
+          var list = (d && d.depositPlans) ? d.depositPlans : [];
+          var tbody = document.getElementById("depositBody");
+          tbody.innerHTML = list.map(function(p){
+            return "<tr><td><input type=\"number\" class=\"p-amount\" value=\"" + (p.amount||"") + "\" min=\"1\" /></td><td><input type=\"number\" class=\"p-bonus\" value=\"" + (p.bonus||"") + "\" min=\"0\" /></td><td><input type=\"text\" class=\"p-label\" value=\"" + escapeHtml(p.label||"") + "\" /></td><td><input type=\"text\" class=\"p-badge\" value=\"" + escapeHtml(p.badge||"") + "\" /></td><td class=\"row-actions\"><button type=\"button\" class=\"del\" data-remove>刪除</button></td></tr>";
+          }).join("");
+          bindDepositRemove();
+        }).catch(function(){ setStatus("depositStatus", "載入失敗", false); });
+      }
+      function bindDepositRemove(){
+        document.querySelectorAll("#depositBody [data-remove]").forEach(function(btn){
+          btn.addEventListener("click", function(){ btn.closest("tr").remove(); });
+        });
+      }
+      document.getElementById("depositLoad").addEventListener("click", function(){ setStatus("depositStatus", "載入中…"); loadDeposit(); setStatus("depositStatus", "已載入", true); });
+      document.getElementById("depositAdd").addEventListener("click", function(){
+        var tbody = document.getElementById("depositBody");
+        tbody.insertAdjacentHTML("beforeend", "<tr><td><input type=\"number\" class=\"p-amount\" value=\"500\" min=\"1\" /></td><td><input type=\"number\" class=\"p-bonus\" value=\"40\" min=\"0\" /></td><td><input type=\"text\" class=\"p-label\" placeholder=\"方案名稱\" /></td><td><input type=\"text\" class=\"p-badge\" placeholder=\"小標\" /></td><td class=\"row-actions\"><button type=\"button\" class=\"del\" data-remove>刪除</button></td></tr>");
+        bindDepositRemove();
+      });
+      document.getElementById("depositSave").addEventListener("click", function(){
+        var rows = document.querySelectorAll("#depositBody tr");
+        var depositPlans = [];
+        rows.forEach(function(tr){
+          var amt = parseInt(tr.querySelector(".p-amount")?.value, 10) || 0;
+          if(amt <= 0) return;
+          var be = tr.querySelector(".p-bonus"); var le = tr.querySelector(".p-label"); var bae = tr.querySelector(".p-badge");
+          depositPlans.push({
+            amount: amt,
+            bonus: parseInt(be ? be.value : 0, 10) || 0,
+            label: (le ? le.value : "").trim(),
+            badge: (bae ? bae.value : "").trim()
+          });
+        });
+        setStatus("depositStatus", "儲存中…");
+        apiPost({ action: "updateDepositPlans", depositPlans: depositPlans }).then(function(data){
+          if(data && data.ok){ setStatus("depositStatus", "已儲存", true); }
+          else{ setStatus("depositStatus", (data && data.error) || "儲存失敗", false); }
+        }).catch(function(){ setStatus("depositStatus", "儲存失敗（網路錯誤）", false); });
+      });
+
+      // ---------- 行程 ----------
+      function loadItinerary(){
+        apiGet("itinerary").then(function(d){
+          var list = (d && d.itinerary) ? d.itinerary : [];
+          var tbody = document.getElementById("itineraryBody");
+          tbody.innerHTML = list.map(function(item){
+            var itemsStr = Array.isArray(item.items) ? item.items.join("|") : (item.items || "");
+            var tagsStr = Array.isArray(item.tags) ? item.tags.join("|") : (item.tags || "");
+            return "<tr><td><input type=\"text\" class=\"i-day\" value=\"" + escapeHtml(item.day||"") + "\" /></td><td><input type=\"text\" class=\"i-title\" value=\"" + escapeHtml(item.title||"") + "\" /></td><td><input type=\"text\" class=\"i-items\" value=\"" + escapeHtml(itemsStr) + "\" placeholder=\"用|分隔\" /></td><td><input type=\"text\" class=\"i-tags\" value=\"" + escapeHtml(tagsStr) + "\" placeholder=\"用|分隔\" /></td><td><input type=\"text\" class=\"i-imageUrl\" value=\"" + escapeHtml(item.imageUrl||"") + "\" /></td><td><input type=\"text\" class=\"i-twStart\" value=\"" + escapeHtml(item.twStart||"") + "\" /></td><td><input type=\"text\" class=\"i-twEnd\" value=\"" + escapeHtml(item.twEnd||"") + "\" /></td><td><input type=\"text\" class=\"i-jpStart\" value=\"" + escapeHtml(item.jpStart||"") + "\" /></td><td><input type=\"text\" class=\"i-jpEnd\" value=\"" + escapeHtml(item.jpEnd||"") + "\" /></td><td><input type=\"text\" class=\"i-countdown\" value=\"" + escapeHtml(item.countdownTarget||"") + "\" /></td><td class=\"row-actions\"><button type=\"button\" class=\"del\" data-remove>刪除</button></td></tr>";
+          }).join("");
+          bindItineraryRemove();
+        }).catch(function(){ setStatus("itineraryStatus", "載入失敗", false); });
+      }
+      function bindItineraryRemove(){
+        document.querySelectorAll("#itineraryBody [data-remove]").forEach(function(btn){
+          btn.addEventListener("click", function(){ btn.closest("tr").remove(); });
+        });
+      }
+      document.getElementById("itineraryLoad").addEventListener("click", function(){ setStatus("itineraryStatus", "載入中…"); loadItinerary(); setStatus("itineraryStatus", "已載入", true); });
+      document.getElementById("itineraryAdd").addEventListener("click", function(){
+        var tbody = document.getElementById("itineraryBody");
+        tbody.insertAdjacentHTML("beforeend", "<tr><td><input type=\"text\" class=\"i-day\" placeholder=\"Day 1\" /></td><td><input type=\"text\" class=\"i-title\" placeholder=\"標題\" /></td><td><input type=\"text\" class=\"i-items\" placeholder=\"用|分隔\" /></td><td><input type=\"text\" class=\"i-tags\" placeholder=\"用|分隔\" /></td><td><input type=\"text\" class=\"i-imageUrl\" /></td><td><input type=\"text\" class=\"i-twStart\" /></td><td><input type=\"text\" class=\"i-twEnd\" /></td><td><input type=\"text\" class=\"i-jpStart\" /></td><td><input type=\"text\" class=\"i-jpEnd\" /></td><td><input type=\"text\" class=\"i-countdown\" /></td><td class=\"row-actions\"><button type=\"button\" class=\"del\" data-remove>刪除</button></td></tr>");
+        bindItineraryRemove();
+      });
+      document.getElementById("itinerarySave").addEventListener("click", function(){
+        var rows = document.querySelectorAll("#itineraryBody tr");
+        var itinerary = [];
+        rows.forEach(function(tr){
+          var get = function(cls){ var el = tr.querySelector(cls); return el ? el.value.trim() : ""; };
+          var title = get(".i-title");
+          if(!title) return;
+          var itemsStr = get(".i-items");
+          var tagsStr = get(".i-tags");
+          itinerary.push({
+            day: get(".i-day") || ("Day " + (itinerary.length + 1)),
+            title: title,
+            items: itemsStr ? itemsStr.split("|").map(function(s){ return s.trim(); }).filter(Boolean) : [],
+            tags: tagsStr ? tagsStr.split("|").map(function(s){ return s.trim(); }).filter(Boolean) : [],
+            imageUrl: get(".i-imageUrl"),
+            twStart: get(".i-twStart"),
+            twEnd: get(".i-twEnd"),
+            jpStart: get(".i-jpStart"),
+            jpEnd: get(".i-jpEnd"),
+            countdownTarget: get(".i-countdown")
+          });
+        });
+        setStatus("itineraryStatus", "儲存中…");
+        apiPost({ action: "updateItinerary", itinerary: itinerary }).then(function(data){
+          if(data && data.ok){ setStatus("itineraryStatus", "已儲存", true); }
+          else{ setStatus("itineraryStatus", (data && data.error) || "儲存失敗", false); }
+        }).catch(function(){ setStatus("itineraryStatus", "儲存失敗（網路錯誤）", false); });
+      });
+    })();
+  </script>
+</body>
+</html>
