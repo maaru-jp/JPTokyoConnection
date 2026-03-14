@@ -45,10 +45,10 @@
     <div id="loginBox">
       <div class="card">
         <h1>CMS 後台登入</h1>
-        <p style="margin:0 0 16px; color:#64748b; font-size:14px;">請輸入與 GAS 中 <code>CMS_SECRET</code> 相同的密碼，以及 GAS 部署網址。<strong>若從本機檔案或其他網域開啟，儲存可能因瀏覽器跨域限制而失敗</strong>；建議改從 GAS 網址開啟：<code>您的GAS網址?page=admin</code>（需先在 GAS 專案新增 HTML 檔「Admin」並貼上 admin.html 內容）。</p>
+        <p style="margin:0 0 16px; color:#64748b; font-size:14px;">若下方「GAS 部署網址」已自動帶入，<strong>只需輸入密碼</strong>即可登入。網址會記住，下次開書籤也只需輸入密碼。</p>
         <form class="login-form" id="loginForm">
-          <label>GAS 部署網址</label>
-          <input type="url" id="gasUrl" placeholder="https://script.google.com/macros/s/你的ID/exec" required />
+          <label>GAS 部署網址 <span style="font-weight:400; color:#64748b;">（從書籤開啟時會自動帶入，不必手動輸入）</span></label>
+          <input type="url" id="gasUrl" placeholder="會自動帶入或記住上次網址，只需輸入密碼" required />
           <label>後台密碼</label>
           <input type="password" id="loginPwd" placeholder="與 GAS 中 CMS_SECRET 相同" required />
           <button type="submit" class="btn btn-primary">登入</button>
@@ -118,10 +118,11 @@
     (function(){
       var STORAGE_URL = "cms_gas_url";
       var STORAGE_SECRET = "cms_secret";
+      var LOCALSTORAGE_URL = "cms_gas_url_last";
 
       function getBaseUrl(){ return (sessionStorage.getItem(STORAGE_URL) || "").replace(/\?.*$/, ""); }
       function getSecret(){ return sessionStorage.getItem(STORAGE_SECRET) || ""; }
-      function setSession(url, secret){ sessionStorage.setItem(STORAGE_URL, url); sessionStorage.setItem(STORAGE_SECRET, secret); }
+      function setSession(url, secret){ sessionStorage.setItem(STORAGE_URL, url); sessionStorage.setItem(STORAGE_SECRET, secret); try { localStorage.setItem(LOCALSTORAGE_URL, url); } catch(e) {} }
       function clearSession(){ sessionStorage.removeItem(STORAGE_URL); sessionStorage.removeItem(STORAGE_SECRET); }
 
       function apiPost(payload){
@@ -151,6 +152,11 @@
         var base = window.location.origin + window.location.pathname;
         sessionStorage.setItem(STORAGE_URL, base);
         if (gasUrlInput) { gasUrlInput.value = base; gasUrlInput.readOnly = true; }
+      } else if (gasUrlInput && !gasUrlInput.value) {
+        try {
+          var last = localStorage.getItem(LOCALSTORAGE_URL);
+          if (last) { gasUrlInput.value = last; gasUrlInput.placeholder = "已帶入上次使用的網址，只需輸入密碼"; }
+        } catch(e) {}
       }
 
       function showLogin(){ loginBox.classList.remove("hide"); dashboard.classList.remove("show"); }
