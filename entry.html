@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-Hant-TW" data-theme="default">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>首頁入口｜MAARU 日本萌GO</title>
+  <meta name="description" content="連線代購入口：儲值方案、行程表、許願池、機場伴手禮" />
+  <style>
+    :root{
+      --bg:#f7f9ff;
+      --card:#ffffff;
+      --muted:#5b677a;
+      --text:#101828;
+      --line:#e6ebf5;
+      --accent:#7aa7ff;
+      --accent2:#b7d4ff;
+      --cream:#fff7ea;
+      --shadow: 0 10px 26px rgba(16,24,40,.08);
+      --radius: 18px;
+      --focus: 0 0 0 4px rgba(122,167,255,.22);
+      --accent-bg: rgba(122,167,255,.12);
+      --accent-border: rgba(122,167,255,.28);
+      --toast-text: #fff;
+    }
+    html[data-theme="wafu"]{
+      --bg:#f5f2eb; --card:#faf8f3; --muted:#5c5348; --text:#2a2520; --line:#e0d9cf;
+      --accent:#3d5a80; --accent2:#6b8cb0; --cream:#f0ebe3;
+      --focus: 0 0 0 4px rgba(61,90,128,.22);
+      --accent-bg: rgba(61,90,128,.12); --accent-border: rgba(61,90,128,.28); --toast-text: #faf8f3;
+    }
+    html[data-theme="wafu"] body{
+      background: radial-gradient(900px 520px at 12% 10%, rgba(61,90,128,.12), transparent 60%),
+        radial-gradient(850px 520px at 90% 12%, rgba(220,210,195,.5), transparent 55%), var(--bg);
+    }
+    html[data-theme="matcha"]{
+      --bg:#f2f5ef; --card:#fafbf8; --muted:#5a6048; --text:#252a20; --line:#d4ddce;
+      --accent:#6b7d5a; --accent2:#8fa87a; --cream:#f0f3ec;
+      --focus: 0 0 0 4px rgba(107,125,90,.22);
+      --accent-bg: rgba(107,125,90,.12); --accent-border: rgba(107,125,90,.28); --toast-text: #fafbf8;
+    }
+    html[data-theme="matcha"] body{
+      background: radial-gradient(900px 520px at 12% 10%, rgba(107,125,90,.1), transparent 60%),
+        radial-gradient(850px 520px at 90% 12%, rgba(197,212,196,.35), transparent 55%), var(--bg);
+    }
+    html[data-theme="dark"]{
+      --bg:#1a1d24; --card:#252932; --muted:#9ca3b4; --text:#e8eaef; --line:#3a3f4b;
+      --accent:#6b9fff; --accent2:#4a7ae8; --cream:#2a2e38;
+      --focus: 0 0 0 4px rgba(107,159,255,.3);
+      --accent-bg: rgba(107,159,255,.14); --accent-border: rgba(107,159,255,.35); --toast-text: #1a1d24;
+    }
+    html[data-theme="dark"] body{
+      background: radial-gradient(900px 520px at 12% 10%, rgba(107,159,255,.15), transparent 60%),
+        radial-gradient(850px 520px at 90% 12%, rgba(74,122,232,.12), transparent 55%), var(--bg);
+    }
+    html[data-theme="forest"]{
+      --bg:#f0f7f0; --card:#fafdfa; --muted:#4a5c4a; --text:#0f1a0f; --line:#c8e0c8;
+      --accent:#2d8a4e; --accent2:#6bb87a; --cream:#f5faf5;
+      --focus: 0 0 0 4px rgba(45,138,78,.22);
+      --accent-bg: rgba(45,138,78,.12); --accent-border: rgba(45,138,78,.28); --toast-text: #f0f7f0;
+    }
+    html[data-theme="forest"] body{
+      background: radial-gradient(900px 520px at 12% 10%, rgba(45,138,78,.15), transparent 60%),
+        radial-gradient(850px 520px at 90% 12%, rgba(107,184,122,.2), transparent 55%), var(--bg);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color:var(--text);
+      background: radial-gradient(900px 520px at 12% 10%, rgba(122,167,255,.22), transparent 60%),
+        radial-gradient(850px 520px at 90% 12%, rgba(183,212,255,.25), transparent 55%),
+        radial-gradient(900px 650px at 55% 100%, rgba(255,247,234,.80), transparent 55%), var(--bg);
+      line-height:1.55;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:640px; margin:0 auto; padding:24px 18px 56px}
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px 0 18px;}
+    .topbar-left{ flex:1; min-width:0; }
+    .topbar-center{ display:flex; justify-content:center; flex-shrink:0; margin-right: 8%; }
+    .topbar-right{ flex:1; display:flex; justify-content:flex-end; min-width:0; }
+    .brand-link{
+      display:inline-block;
+      padding:8px;
+      border-radius:16px;
+      background: rgba(255,255,255,.4);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(255,255,255,.55);
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+      transition: transform .25s ease, box-shadow .25s ease;
+      flex-shrink:0;
+    }
+    html[data-theme="dark"] .brand-link{
+      background: rgba(37,41,50,.5);
+      border-color: rgba(255,255,255,.12);
+    }
+    .brand-logo{
+      display:block;
+      width:56px;
+      height:56px;
+      border-radius:14px;
+      object-fit:cover;
+    }
+    @media (min-width:480px){
+      .brand-link{ padding:10px; border-radius:18px; }
+      .brand-logo{ width:72px; height:72px; border-radius:16px; }
+    }
+    .theme-switcher{ display:grid; grid-template-columns: repeat(3, auto); gap:6px; justify-items:end; }
+    .theme-switcher button{
+      padding:6px 10px; border-radius:999px; border:1px solid var(--line);
+      background:var(--card); color:var(--text);
+      font-size:12px; font-weight:700; cursor:pointer;
+    }
+    .theme-switcher button:hover{ transform:translateY(-1px); box-shadow: var(--shadow); }
+    /* 目前主題：用邊框＋字重標示，不依賴主題色，每個按鈕都能正確顯示 */
+    .theme-switcher button[aria-pressed="true"]{
+      border-width:2px;
+      font-weight:900;
+      background:var(--card);
+      color:var(--text);
+    }
+    .entry-page{ margin-top:24px; }
+    .entry-page h1{
+      margin:0 0 20px;
+      font-size:22px;
+      font-weight:900;
+      text-align:center;
+      color:var(--text);
+    }
+    .entry-list{ display:flex; flex-direction:column; align-items:center; gap:12px; list-style:none; margin:0; padding:0; }
+    .entry-item{ width:100%; max-width:280px; }
+    .entry-item a{
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      padding:16px 24px;
+      border-radius: var(--radius);
+      background:var(--card);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      font-weight:800; font-size:15px;
+      text-align:center;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .entry-item a:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.12);
+      border-color: var(--accent-border);
+    }
+    .entry-item a.primary{
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:var(--toast-text);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="topbar-left"></div>
+      <div class="topbar-center">
+        <span class="brand-link" aria-hidden="true">
+          <img src="https://res.cloudinary.com/dtll13zax/image/upload/v1772375369/%E5%93%81%E7%89%8Clogo_eheujn.jpg" alt="MAARU 日本萌GO" class="brand-logo" />
+        </span>
+      </div>
+      <div class="topbar-right">
+        <div class="theme-switcher" role="group" aria-label="切換主題">
+        <button type="button" data-theme="default" aria-pressed="true">預設</button>
+        <button type="button" data-theme="wafu">和風</button>
+        <button type="button" data-theme="matcha">抹茶</button>
+        <button type="button" data-theme="dark">深色</button>
+        <button type="button" data-theme="forest">森林</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="entry-page" role="main">
+      <h1>首頁入口</h1>
+      <ul class="entry-list" role="navigation" aria-label="服務入口">
+        <li class="entry-item">
+          <a class="primary" href="index.html#deposit">
+            <span>先看儲值方案</span>
+          </a>
+        </li>
+        <li class="entry-item">
+          <a href="https://maaru-jp.github.io/JP-Connection/" target="_blank" rel="noopener">
+            <span>機場伴手禮</span>
+          </a>
+        </li>
+        <li class="entry-item">
+          <a href="itinerary.html" target="_blank" rel="noopener">
+            <span>看行程表</span>
+          </a>
+        </li>
+        <li class="entry-item">
+          <a href="wish-pool.html" target="_blank" rel="noopener">
+            <span>許願池</span>
+          </a>
+        </li>
+      </ul>
+    </main>
+  </div>
+  <script>
+    (function(){
+      var KEY = "maaru-theme";
+      var root = document.documentElement;
+      function setTheme(theme){
+        theme = theme || "default";
+        root.setAttribute("data-theme", theme);
+        document.querySelectorAll(".theme-switcher button").forEach(function(btn){
+          btn.setAttribute("aria-pressed", btn.getAttribute("data-theme") === theme ? "true" : "false");
+        });
+        try { localStorage.setItem(KEY, theme); } catch(e) {}
+      }
+      try {
+        var saved = localStorage.getItem(KEY) || "";
+        if (["default","wafu","matcha","dark","forest"].indexOf(saved) >= 0) setTheme(saved);
+      } catch(e) {}
+      document.querySelectorAll(".theme-switcher button").forEach(function(btn){
+        btn.addEventListener("click", function(){ setTheme(btn.getAttribute("data-theme")); });
+      });
+    })();
+  </script>
+</body>
+</html>

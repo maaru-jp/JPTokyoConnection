@@ -2,40 +2,14 @@
  * 許願池 API - Google Apps Script
  * 貼到試算表：擴充功能 → Apps Script → 新增 .gs 檔貼上後部署為「網路應用程式」
  * 重要：Sheet 第一列必須是標題 id, title, note, category, link, region, status, image1, image2, image3, supportCount, createdAt
- * CMS 後台寫入：POST 時帶 action=updateBulletins|updateDepositPlans|updateItinerary 與 secret（需與下方一致）
  */
-var CMS_SECRET = "esV5RWUY40etwy0";
 
 /**
  * GET：讀取許願列表。加上 ?callback=函數名 可回傳 JSONP（避開 CORS）
- * CMS：?type=bulletins | type=deposit | type=itinerary 讀取對應工作表（公布欄／儲值方案／行程）
  */
 function doGet(e) {
   var params = e && e.parameter ? e.parameter : {};
   var callback = params.callback || null;
-  var type = (params.type || "").toLowerCase();
-
-  if (params.page === "admin") {
-    try {
-      return HtmlService.createHtmlOutputFromFile("Admin")
-        .setTitle("CMS 後台")
-        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    } catch (err) {
-      return ContentService.createTextOutput(
-        "請先在 Apps Script 專案左側新增「檔案」→「新增」→「HTML」，檔名設為 Admin，將您電腦中 admin.html 的完整內容貼上後儲存，再重新部署。完成後用此網址加上 ?page=admin 開啟後台，即可避免跨域導致儲存失敗。"
-      ).setMimeType(ContentService.MimeType.TEXT);
-    }
-  }
-
-  if (type === "bulletins") {
-    return _jsonResponse(_readBulletins(), callback);
-  }
-  if (type === "deposit") {
-    return _jsonResponse(_readDepositPlans(), callback);
-  }
-  if (type === "itinerary") {
-    return _jsonResponse(_readItinerary(), callback);
-  }
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = [];
@@ -61,106 +35,6 @@ function doGet(e) {
     list.push(obj);
   }
   return _jsonResponse({ wishes: list }, callback);
-}
-
-function _readSheetByName(name) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(name);
-  if (!sheet) return [];
-  try {
-    return sheet.getDataRange().getValues();
-  } catch (err) {
-    return [];
-  }
-}
-
-function _getOrCreateSheet(name, headerRow) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(name);
-  if (!sheet) {
-    sheet = ss.insertSheet(name);
-    if (headerRow && headerRow.length) {
-      sheet.getRange(1, 1, 1, headerRow.length).setValues([headerRow]);
-    }
-  }
-  return sheet;
-}
-
-function _readBulletins() {
-  var data = _readSheetByName("公布欄");
-  if (!data || data.length < 2) return { bulletins: [] };
-  var rows = data.slice(1);
-  var list = [];
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    var typeVal = (r[0] != null && String(r[0]).trim() !== "") ? String(r[0]).trim() : "";
-    var textVal = (r[1] != null && String(r[1]).trim() !== "") ? String(r[1]).trim() : "";
-    if (textVal === "") continue;
-    list.push({ type: typeVal || "info", text: textVal });
-  }
-  return { bulletins: list };
-}
-
-function _readDepositPlans() {
-  var data = _readSheetByName("儲值方案");
-  if (!data || data.length < 2) return { depositPlans: [] };
-  var rows = data.slice(1);
-  var list = [];
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    var amount = parseInt(r[0], 10) || 0;
-    if (amount <= 0) continue;
-    var bonus = (r[1] != null && r[1] !== "") ? parseInt(r[1], 10) : 0;
-    var label = (r[2] != null && String(r[2]).trim() !== "") ? String(r[2]).trim() : "";
-    var badge = (r[3] != null && String(r[3]).trim() !== "") ? String(r[3]).trim() : "";
-    list.push({ amount: amount, bonus: bonus, label: label, badge: badge });
-  }
-  return { depositPlans: list };
-}
-
-function _readItinerary() {
-  var data = _readSheetByName("行程");
-  if (!data || data.length < 2) return { itinerary: [] };
-  var headers = data[0];
-  var rows = data.slice(1);
-  var list = [];
-  var idx = function (name) { var i = headers.indexOf(name); return i >= 0 ? i : -1; };
-  var dayIdx = idx("day");
-  var titleIdx = idx("title");
-  var itemsIdx = idx("items");
-  var tagsIdx = idx("tags");
-  var imgIdx = idx("imageUrl");
-  var twSIdx = idx("twStart");
-  var twEIdx = idx("twEnd");
-  var jpSIdx = idx("jpStart");
-  var jpEIdx = idx("jpEnd");
-  var countdownIdx = idx("countdownTarget");
-  if (dayIdx < 0 || titleIdx < 0) return { itinerary: [] };
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    var day = (r[dayIdx] != null && String(r[dayIdx]).trim() !== "") ? String(r[dayIdx]).trim() : ("Day " + (i + 1));
-    var title = (r[titleIdx] != null && String(r[titleIdx]).trim() !== "") ? String(r[titleIdx]).trim() : "";
-    if (title === "") continue;
-    var itemsStr = (itemsIdx >= 0 && r[itemsIdx] != null && String(r[itemsIdx]).trim() !== "") ? String(r[itemsIdx]).trim() : "";
-    var items = itemsStr ? itemsStr.split("|").map(function (s) { return s.trim(); }).filter(Boolean) : [];
-    var tagsStr = (tagsIdx >= 0 && r[tagsIdx] != null && String(r[tagsIdx]).trim() !== "") ? String(r[tagsIdx]).trim() : "";
-    var tags = tagsStr ? tagsStr.split("|").map(function (s) { return s.trim(); }).filter(Boolean) : [];
-    var imageUrl = (imgIdx >= 0 && r[imgIdx] != null && String(r[imgIdx]).trim() !== "") ? String(r[imgIdx]).trim() : "";
-    var twStart = (twSIdx >= 0 && r[twSIdx] != null && String(r[twSIdx]).trim() !== "") ? String(r[twSIdx]).trim() : "";
-    var twEnd = (twEIdx >= 0 && r[twEIdx] != null && String(r[twEIdx]).trim() !== "") ? String(r[twEIdx]).trim() : "";
-    var jpStart = (jpSIdx >= 0 && r[jpSIdx] != null && String(r[jpSIdx]).trim() !== "") ? String(r[jpSIdx]).trim() : "";
-    var jpEnd = (jpEIdx >= 0 && r[jpEIdx] != null && String(r[jpEIdx]).trim() !== "") ? String(r[jpEIdx]).trim() : "";
-    var countdownTarget = (countdownIdx >= 0 && r[countdownIdx] != null && String(r[countdownIdx]).trim() !== "") ? String(r[countdownIdx]).trim() : "";
-    var obj = { day: day, title: title, items: items, tags: tags };
-    if (imageUrl) obj.imageUrl = imageUrl;
-    if (twStart) obj.twStart = twStart;
-    if (twEnd) obj.twEnd = twEnd;
-    if (jpStart) obj.jpStart = jpStart;
-    if (jpEnd) obj.jpEnd = jpEnd;
-    if (countdownTarget) obj.countdownTarget = countdownTarget;
-    list.push(obj);
-  }
-  return { itinerary: list };
 }
 
 function _jsonResponse(obj, callback) {
@@ -239,78 +113,6 @@ function doPost(e) {
       return _postResponse({ ok: true, supportCount: newCount }, returnHtml);
     } catch (err) {
       return _postResponse({ ok: false, error: err.toString() }, returnHtml);
-    }
-  }
-
-  // CMS 後台：驗證密碼（登入用）
-  if (json.action === "verify") {
-    if (json.secret === CMS_SECRET) {
-      return _postResponse({ ok: true }, returnHtml);
-    }
-    return _postResponse({ ok: false, error: "密碼錯誤" }, returnHtml);
-  }
-
-  // CMS 後台：寫入公布欄／儲值方案／行程（需帶 secret）
-  if (json.action === "updateBulletins" || json.action === "updateDepositPlans" || json.action === "updateItinerary") {
-    if (json.secret !== CMS_SECRET) {
-      return _postResponse({ ok: false, error: "密碼錯誤或未提供" }, returnHtml);
-    }
-  }
-  if (json.secret === CMS_SECRET) {
-    if (json.action === "updateBulletins") {
-      try {
-        var list = json.bulletins || [];
-        var sheet = _getOrCreateSheet("公布欄", ["type", "text"]);
-        sheet.clearContents();
-        sheet.getRange(1, 1, 1, 2).setValues([["type", "text"]]);
-        for (var i = 0; i < list.length; i++) {
-          var b = list[i];
-          sheet.getRange(i + 2, 1, 1, 2).setValues([[b.type || "info", b.text || ""]]);
-        }
-        return _postResponse({ ok: true }, returnHtml);
-      } catch (err) {
-        return _postResponse({ ok: false, error: err.toString() }, returnHtml);
-      }
-    }
-    if (json.action === "updateDepositPlans") {
-      try {
-        var list = json.depositPlans || [];
-        var sheet = _getOrCreateSheet("儲值方案", ["amount", "bonus", "label", "badge"]);
-        sheet.clearContents();
-        sheet.getRange(1, 1, 1, 4).setValues([["amount", "bonus", "label", "badge"]]);
-        var rowNum = 2;
-        for (var i = 0; i < list.length; i++) {
-          var p = list[i];
-          var amt = parseInt(p.amount, 10) || 0;
-          if (amt <= 0) continue;
-          sheet.getRange(rowNum, 1, 1, 4).setValues([[amt, parseInt(p.bonus, 10) || 0, p.label || "", p.badge || ""]]);
-          rowNum++;
-        }
-        return _postResponse({ ok: true }, returnHtml);
-      } catch (err) {
-        return _postResponse({ ok: false, error: err.toString() }, returnHtml);
-      }
-    }
-    if (json.action === "updateItinerary") {
-      try {
-        var list = json.itinerary || [];
-        var headers = ["day", "title", "items", "tags", "imageUrl", "twStart", "twEnd", "jpStart", "jpEnd", "countdownTarget"];
-        var sheet = _getOrCreateSheet("行程", headers);
-        sheet.clearContents();
-        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-        for (var i = 0; i < list.length; i++) {
-          var d = list[i];
-          var itemsStr = Array.isArray(d.items) ? d.items.join("|") : (d.items || "");
-          var tagsStr = Array.isArray(d.tags) ? d.tags.join("|") : (d.tags || "");
-          sheet.getRange(i + 2, 1, 1, headers.length).setValues([[
-            d.day || "", d.title || "", itemsStr, tagsStr,
-            d.imageUrl || "", d.twStart || "", d.twEnd || "", d.jpStart || "", d.jpEnd || "", d.countdownTarget || ""
-          ]]);
-        }
-        return _postResponse({ ok: true }, returnHtml);
-      } catch (err) {
-        return _postResponse({ ok: false, error: err.toString() }, returnHtml);
-      }
     }
   }
 

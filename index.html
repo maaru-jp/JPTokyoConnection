@@ -210,7 +210,23 @@
     }
     .brand h1{font-size:15px; margin:0}
     .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
-    .topbar-right{display:flex; align-items:center; gap:12px; flex-wrap:wrap; min-width:0;}
+    .topbar-left{ flex:1; min-width:0; display:flex; align-items:center; }
+    .topbar-center{ display:flex; justify-content:center; flex-shrink:0; }
+    .topbar-entry{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 22px; border-radius:999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border:1px solid rgba(255,255,255,.28);
+      font-size:15px; font-weight:800; color:#fff;
+      box-shadow: 0 4px 18px rgba(122,167,255,.32);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .topbar-entry:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(122,167,255,.42);
+    }
+    .topbar-entry::before{ content:"✦ "; font-size:.92em; opacity:.95; }
+    .topbar-right{display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; flex:1; min-width:0;}
     .theme-switcher{
       display:flex; align-items:center; gap:6px; flex-wrap:wrap;
     }
@@ -828,15 +844,10 @@
 <body>
   <div class="wrap">
     <div class="topbar">
-      <a href="." class="brand brand-link" title="重新整理" aria-label="回到首頁並重新整理">
-        <div class="logo" aria-hidden="true">
-          <img src="https://res.cloudinary.com/dtll13zax/image/upload/v1772375369/%E5%93%81%E7%89%8Clogo_eheujn.jpg" alt="MAARU 日本萌GO" />
-        </div>
-        <div>
-          <h1>MAARU 日本萌GO</h1>
-          <p>東京連線代購</p>
-        </div>
-      </a>
+      <div class="topbar-left"></div>
+      <div class="topbar-center">
+        <a href="entry.html" class="topbar-entry" title="回首頁入口">回首頁入口</a>
+      </div>
       <div class="topbar-right">
         <div class="theme-switcher" role="group" aria-label="切換主題">
           <button type="button" data-theme="default" aria-pressed="true">預設</button>
@@ -900,13 +911,6 @@
           </ul>
         </div>
       </details>
-    </div>
-
-    <div class="hero-actions">
-      <a class="btn primary" href="#deposit">先看儲值方案</a>
-      <a class="btn" href="https://maaru-jp.github.io/JP-Connection/" target="_blank" rel="noopener">機場伴手禮</a>
-      <a class="btn ghost" href="itinerary.html" target="_blank" rel="noopener">看行程表</a>
-      <a class="btn" href="wish-pool.html" target="_blank" rel="noopener">許願池</a>
     </div>
 
     <!-- HERO -->
@@ -1259,8 +1263,6 @@
         btn.addEventListener("click", function(){ setTheme(btn.getAttribute("data-theme")); });
       });
     })();
-    // ====== CMS：與許願池同一個 GAS 網址，填了會從試算表讀取公布欄、儲值方案 ======
-    var CMS_BASE_URL = ""; // 例： "https://script.google.com/macros/s/你的ID/exec"
     // ====== 你只需要改這裡（資料區） ======
     const CONFIG = {
       tripRangeText: "2026/04/26 – 2026/05/04（9天）",
@@ -1664,33 +1666,16 @@
       });
     })();
 
-    function loadCmsConfig(){
-      var base = (CMS_BASE_URL || "").trim().replace(/\?.*$/, "");
-      if(!base) return Promise.resolve();
-      var bulletinsUrl = base + (base.indexOf("?") >= 0 ? "&" : "?") + "type=bulletins";
-      var depositUrl = base + (base.indexOf("?") >= 0 ? "&" : "?") + "type=deposit";
-      return Promise.all([
-        fetch(bulletinsUrl).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){ if(d && d.bulletins && d.bulletins.length) CONFIG.bulletins = d.bulletins; }).catch(function(){ }),
-        fetch(depositUrl).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){ if(d && d.depositPlans && d.depositPlans.length) CONFIG.depositPlans = d.depositPlans; }).catch(function(){ })
-      ]);
-    }
     // init
     (function doInit(){
-      function run(){
-        renderItinerary();
-        renderNotice();
-        renderChips();
-        renderProducts();
-        bindSearch();
-        renderDepositCards();
-        bindDepositAmountBtns();
-        bindDepositCopy();
-      }
-      if(CMS_BASE_URL && CMS_BASE_URL.trim()){
-        loadCmsConfig().then(run).catch(run);
-      } else {
-        run();
-      }
+      renderItinerary();
+      renderNotice();
+      renderChips();
+      renderProducts();
+      bindSearch();
+      renderDepositCards();
+      bindDepositAmountBtns();
+      bindDepositCopy();
     })();
   </script>
   <div class="footer">

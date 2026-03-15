@@ -334,7 +334,7 @@
     <header>
       <div>
         <div class="title-main">東京連線行程表（概略）</div>
-        <a href="index.html" class="back-link">回到代購首頁</a>
+        <a href="entry.html" class="back-link">回首頁入口</a>
       </div>
       <div class="tagline">
         <div class="tag-pill">
@@ -353,9 +353,7 @@
   </div>
 
   <script>
-    // CMS：填「與後台相同的 GAS 網址」顧客看到的行程表才會是試算表裡的資料
-    var CMS_ITINERARY_URL = ""https://script.google.com/macros/s/AKfycbztW2xXJsPQmrvHYENQ7QtNxCJdXT4gXWOA2NpmsXDBd5ZizEzodropXvjNHL9yLW4-_g/exec?page=admin"
-    // 與首頁相同的行程資料（可視需要維持同步；有設 CMS 會從試算表覆寫）
+    // 與首頁相同的行程資料（可視需要維持同步）
     const CONFIG = {
       tripRangeText: "2026/04/26 – 2026/05/04（9天）",
       liveDaysText: "Day 3、Day 6（暫定，日本時間晚間 20:00 左右）",
@@ -594,24 +592,12 @@
       setInterval(update, 1000);
     }
 
-    function loadCmsItinerary(){
-      var url = (CMS_ITINERARY_URL || "").trim().replace(/\?.*$/, "");
-      if(!url) return Promise.resolve();
-      var u = url + (url.indexOf("?") >= 0 ? "&" : "?") + "type=itinerary";
-      return fetch(u).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){
-        if(d && d.itinerary && d.itinerary.length) CONFIG.itinerary = d.itinerary;
-      }).catch(function(){});
-    }
     function doInit(){
       renderItinerary();
       renderSessions();
       initCountdowns();
     }
-    if(CMS_ITINERARY_URL && CMS_ITINERARY_URL.trim()){
-      loadCmsItinerary().then(doInit).catch(doInit);
-    } else {
-      doInit();
-    }
+    doInit();
   </script>
 </body>
 </html>
