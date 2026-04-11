@@ -401,38 +401,125 @@
     .btn.ghost{background: var(--cream);}
     .btn:focus{outline:none; box-shadow: var(--focus);}
 
-    .hero-side{padding:18px; display:flex; flex-direction:column; gap:12px; font-size: 1.05rem; }
+    .hero-side{
+      padding:18px; display:flex; flex-direction:column; gap:0; font-size: 1.05rem;
+    }
+    .hero-live-strip{
+      display:flex; align-items:flex-start; gap:10px;
+      padding:12px 14px; margin-bottom:12px;
+      border-radius:14px;
+      background: linear-gradient(135deg, var(--accent-bg) 0%, var(--cream) 100%);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .hero-live-ico{ font-size:1.25rem; line-height:1.2; flex-shrink:0; }
+    .hero-live-label{ font-size:11px; font-weight:900; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:2px; }
+    .hero-live-value{ margin:0; font-size:14px; font-weight:900; color:var(--text); line-height:1.45; }
+    .hero-rate-tabs{ position:relative; margin-top:0; }
+    .hero-tab-sr{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+    .hero-tab-bar{
+      display:flex; flex-wrap:wrap; gap:6px;
+      margin-bottom:10px;
+    }
+    .hero-tab-bar label{
+      cursor:pointer;
+      padding:8px 12px; border-radius:999px;
+      font-size:12px; font-weight:900;
+      color:var(--muted);
+      background:var(--card);
+      border:1px solid var(--line);
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+      flex:1 1 auto;
+      text-align:center;
+      min-width:0;
+    }
+    .hero-tab-bar label:hover{ border-color:var(--accent-border); color:var(--text); }
+    #heroRateTab1:checked ~ .hero-tab-bar label[for="heroRateTab1"],
+    #heroRateTab2:checked ~ .hero-tab-bar label[for="heroRateTab2"],
+    #heroRateTab3:checked ~ .hero-tab-bar label[for="heroRateTab3"]{
+      background: linear-gradient(135deg, var(--accent-bg) 0%, var(--cream) 100%);
+      border-color: var(--accent-border);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+    .hero-tab-panels{ min-height:0; }
+    .hero-tab-panel{
+      display:none;
+      padding:0;
+    }
+    #heroRateTab1:checked ~ .hero-tab-panels .hero-tab-panel:nth-child(1),
+    #heroRateTab2:checked ~ .hero-tab-panels .hero-tab-panel:nth-child(2),
+    #heroRateTab3:checked ~ .hero-tab-panels .hero-tab-panel:nth-child(3){
+      display:block;
+    }
+    .hero-mini-table-wrap{
+      overflow-x:auto;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--card);
+      box-shadow: var(--shadow);
+    }
+    .hero-mini-table{
+      width:100%; border-collapse:collapse;
+      font-size:12px; font-weight:800;
+      color:var(--muted);
+    }
+    .hero-mini-table th,
+    .hero-mini-table td{
+      padding:8px 10px;
+      text-align:left;
+      vertical-align:top;
+      border-bottom:1px solid var(--line);
+    }
+    .hero-mini-table tr:last-child th,
+    .hero-mini-table tr:last-child td{ border-bottom:none; }
+    .hero-mini-table th{
+      width:34%;
+      min-width:7.5rem;
+      color:var(--text);
+      font-weight:950;
+      background:var(--accent-bg);
+    }
+    .hero-mini-table td{ line-height:1.45; }
+    .hero-mini-table td .coef{ color:var(--accent); font-weight:950; }
+    .hero-panel-subh{
+      margin:0 0 6px;
+      font-size:12px; font-weight:950;
+      color:var(--text);
+    }
+    .hero-panel-subh + .hero-mini-table-wrap{ margin-bottom:12px; }
+    .hero-panel-note{
+      margin:8px 0 0;
+      padding:8px 10px;
+      border-radius:10px;
+      background:var(--accent-bg);
+      border:1px solid var(--line);
+      font-size:12px; font-weight:800;
+      line-height:1.5;
+      color:var(--muted);
+    }
+    .hero-tab-note{
+      padding:14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--card);
+      box-shadow:var(--shadow);
+      font-size:14px;
+      font-weight:800;
+      color:var(--muted);
+      line-height:1.55;
+    }
+    .hero-tab-note p{ margin:0; }
     .hero-side .hero-side-head{ margin: -18px -18px 12px -18px; border-radius: var(--radius) var(--radius) 0 0; }
     .hero-side-note{ margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--accent-bg); border: 1px solid var(--line); font-size: 13px; font-weight: 800; color: var(--muted); line-height: 1.5; }
     .hero-side .deposit-head h2{ font-size: 22px; }
-    .hero-collapse{
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--card);
-      overflow: hidden;
-      box-shadow: var(--shadow);
+    .hero-tab-bar label:focus-visible{
+      outline: none;
+      box-shadow: var(--focus);
     }
-    .hero-collapse-summary{
-      list-style: none;
-      cursor: pointer;
-      padding: 12px 14px;
-      background: linear-gradient(135deg, var(--accent-bg) 0%, var(--cream) 100%);
-      border-bottom: 1px solid var(--line);
-      font-weight: 900;
-      font-size: 15px;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .hero-collapse-emoji{ font-size: 1.1em; line-height: 1; margin-right: 6px; }
-    .hero-collapse-summary::-webkit-details-marker{ display: none; }
-    .hero-collapse:not([open]) .hero-collapse-summary{ border-bottom: none; }
-    .hero-collapse-icon{ font-size: 12px; color: var(--muted); transition: transform .2s ease; }
-    .hero-collapse[open] .hero-collapse-icon{ transform: rotate(180deg); }
-    .hero-collapse-body{ padding: 12px 14px; color: var(--muted); font-size: 14px; font-weight: 800; line-height: 1.5; }
-    .hero-collapse-body p{ margin: 0; }
     .rate-grid{ display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 4px; }
     .rate-item{ display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--accent-bg); border-radius: 10px; border: 1px solid var(--line); }
     .rate-item .yen{ font-weight: 900; color: var(--text); }
@@ -545,6 +632,10 @@
     }
 
     /* ===== 儲值區塊 ===== */
+    /* 公開儲值方案時：移除此區塊 div 的 class「deposit-card-block--hidden」 */
+    .deposit-card-block.deposit-card-block--hidden{
+      display: none !important;
+    }
     .deposit-head{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
       padding:20px 22px; margin:0;
@@ -940,122 +1031,102 @@
             <h2>連線說明</h2>
           </div>
         </header>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">📅</span>
-            <span class="hero-collapse-title">連線代購日（暫定）</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p id="liveDays">Day 3、Day 6（日本時間晚間 20:00 左右）</p>
+
+        <div class="hero-live-strip">
+          <span class="hero-live-ico" aria-hidden="true">📅</span>
+          <div>
+            <div class="hero-live-label">連線代購日（暫定）</div>
+            <p class="hero-live-value" id="liveDays">Day 3、Day 6（日本時間晚間 20:00 左右）</p>
           </div>
-        </details>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">🏪</span>
-            <span class="hero-collapse-title">超商匯率（7-11／全家／Lawson）</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p><strong>7-11、全家超商、Lawson</strong> 匯率：</p>
-            <ul class="hero-collapse-list" style="margin:6px 0 0; padding-left:20px;">
-              <li>日幣 1,000 以上 ×0.35</li>
-              <li>日幣 1,000 以下以現場報價為準</li>
-            </ul>
+        </div>
+
+        <div class="hero-rate-tabs">
+          <input type="radio" name="heroRateTab" id="heroRateTab1" class="hero-tab-sr" checked />
+          <input type="radio" name="heroRateTab" id="heroRateTab2" class="hero-tab-sr" />
+          <input type="radio" name="heroRateTab" id="heroRateTab3" class="hero-tab-sr" />
+          <div class="hero-tab-bar" role="tablist" aria-label="連線說明分類">
+            <label for="heroRateTab1" role="tab">通路／店家</label>
+            <label for="heroRateTab2" role="tab">扭蛋／盲盒</label>
+            <label for="heroRateTab3" role="tab">備註</label>
           </div>
-        </details>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">🛒</span>
-            <span class="hero-collapse-title">唐吉軻德</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p><strong>唐吉軻德</strong> 匯率：</p>
-            <ul class="hero-collapse-list" style="margin:6px 0 0; padding-left:20px;">
-              <li>日幣 1,000 以上 ×0.35</li>
-              <li>日幣 1,000 以下以現場報價為準</li>
-            </ul>
+          <div class="hero-tab-panels">
+            <div class="hero-tab-panel" role="tabpanel">
+              <div class="hero-mini-table-wrap">
+                <table class="hero-mini-table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">超商（7-11／全家／Lawson）</th>
+                      <td>日幣 1,000 以上 <span class="coef">×0.35</span>；未滿以現場報價為準</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">唐吉軻德</th>
+                      <td>日幣 1,000 以上 <span class="coef">×0.35</span>；未滿以現場報價為準</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">日本大創（DAISO）</th>
+                      <td>日幣 1,000 以上 <span class="coef">×0.33</span>；未滿以現場報價為準</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">日本Avail</th>
+                      <td>日幣 1,000 以上 <span class="coef">×0.32</span>；未滿以現場報價為準</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">三麗鷗（Sanrio）</th>
+                      <td>一般價格 <span class="coef">×0.33</span>；購買 5 樣商品以上 <span class="coef">×0.29</span></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Uniqlo、GU</th>
+                      <td>價格 <span class="coef">×0.3</span>；滿 5,000 日圓 <span class="coef">×0.28</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="hero-tab-panel" role="tabpanel">
+              <h3 class="hero-panel-subh">扭蛋</h3>
+              <div class="hero-mini-table-wrap">
+                <table class="hero-mini-table">
+                  <tbody>
+                    <tr><th scope="row">100 日幣</th><td>台幣 50 元</td></tr>
+                    <tr><th scope="row">200 日幣</th><td>台幣 80 元</td></tr>
+                    <tr><th scope="row">300 日幣</th><td>台幣 120 元</td></tr>
+                    <tr><th scope="row">400 日幣</th><td>台幣 140 元</td></tr>
+                    <tr><th scope="row">500 日幣</th><td>台幣 170 元</td></tr>
+                    <tr><th scope="row">600 日幣</th><td>台幣 190 元</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hero-panel-note">扭蛋外殼均會保留；外殼若本身稍微受損不屬於瑕疵品。</p>
+              <h3 class="hero-panel-subh">盲盒</h3>
+              <div class="hero-mini-table-wrap">
+                <table class="hero-mini-table">
+                  <tbody>
+                    <tr><th scope="row">100～199 円</th><td>NT$60</td></tr>
+                    <tr><th scope="row">200～299 円</th><td>NT$80</td></tr>
+                    <tr><th scope="row">300～399 円</th><td>NT$120</td></tr>
+                    <tr><th scope="row">400～499 円</th><td>NT$150</td></tr>
+                    <tr><th scope="row">500～599 円</th><td>NT$180</td></tr>
+                    <tr><th scope="row">600～699 円</th><td>NT$210</td></tr>
+                    <tr><th scope="row">700～799 円</th><td>NT$240</td></tr>
+                    <tr><th scope="row">800～899 円</th><td>NT$270</td></tr>
+                    <tr><th scope="row">900～999 円</th><td>NT$300</td></tr>
+                    <tr><th scope="row">1,000～1,199 円</th><td>NT$350</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="hero-tab-panel" role="tabpanel">
+              <div class="hero-tab-note">
+                <p><strong>國際運費：</strong>本次親飛代購價不加「<strong style="color:#dc2626;">國際運費</strong>」項目，回台後的賣貨便運費另計 NT$38 元。</p>
+              </div>
+            </div>
           </div>
-        </details>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">🎀</span>
-            <span class="hero-collapse-title">三麗鷗匯率（Sanrio）</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p><strong>一般價格</strong> ×0.33</p>
-            <p><strong>一般價格（購 5 樣商品以上）</strong> ×0.29</p>
-          </div>
-        </details>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">👕</span>
-            <span class="hero-collapse-title">Uniqlo、GU 匯率</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p><strong>Uniqlo、GU</strong> 價格 ×0.3</p>
-            <p>滿 5,000 日圓匯率直接 ×0.28</p>
-          </div>
-        </details>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">🥚</span>
-            <span class="hero-collapse-title">扭蛋匯率</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p><strong>扭蛋</strong> 匯率：</p>
-            <ul class="hero-collapse-list" style="margin:6px 0 0; padding-left:20px;">
-              <li>100 日幣＝台幣 50 元</li>
-              <li>200 日幣＝台幣 80 元</li>
-              <li>300 日幣＝台幣 120 元</li>
-              <li>400 日幣＝台幣 140 元</li>
-              <li>500 日幣＝台幣 170 元</li>
-              <li>600 日幣＝台幣 190 元</li>
-            </ul>
-            <p style="margin-top:10px;">補充：<strong style="color:#dc2626;">外殼均會保留，但外殼如本身稍微受損不屬於瑕疵品</strong></p>
-          </div>
-        </details>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">📦</span>
-            <span class="hero-collapse-title">盲盒價格</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p><strong>盲盒價格</strong>：</p>
-            <ul class="hero-collapse-list" style="margin:6px 0 0; padding-left:20px;">
-              <li>100～199 円盲盒＝NT$60</li>
-              <li>200～299 円盲盒＝NT$80</li>
-              <li>300～399 円盲盒＝NT$120</li>
-              <li>400～499 円盲盒＝NT$150</li>
-              <li>500～599 円盲盒＝NT$180</li>
-              <li>600～699 円盲盒＝NT$210</li>
-              <li>700～799 円盲盒＝NT$240</li>
-              <li>800～899 円盲盒＝NT$270</li>
-              <li>900～999 円盲盒＝NT$300</li>
-              <li>1,000～1,199 円盲盒＝NT$350</li>
-            </ul>
-          </div>
-        </details>
-        <details class="hero-collapse">
-          <summary class="hero-collapse-summary">
-            <span class="hero-collapse-emoji" aria-hidden="true">📝</span>
-            <span class="hero-collapse-title">備註</span>
-            <span class="hero-collapse-icon" aria-hidden="true">▼</span>
-          </summary>
-          <div class="hero-collapse-body">
-            <p><strong>國際運費：</strong>本次親飛代購價不加「<strong style="color:#dc2626;">國際運費</strong>」項目，回台後的賣貨便運費另計 NT$38 元。</p>
-          </div>
-        </details>
+        </div>
       </div>
     </div>
 
-    <!-- 儲值方案 + 一鍵複製 -->
-    <div class="card deposit-card-block" id="deposit" style="margin-top:20px;">
+    <!-- 儲值方案 + 一鍵複製（暫不公開：見 class deposit-card-block--hidden） -->
+    <div class="card deposit-card-block deposit-card-block--hidden" id="deposit" style="margin-top:20px;">
       <div class="corner">
         <div class="sticker blue"><span class="emo">🐰</span> 先儲值</div>
         <div class="sticker cream"><span class="emo">🐻</span> 才能喊</div>
@@ -1459,12 +1530,13 @@
     let selectedDeposit = CONFIG.depositPlans[1]?.amount ?? 500;
 
     function renderDepositCards(){
+      const el = $("#depositCards");
+      if(!el) return;
       // 同步金額按鈕的 active 狀態（按鈕已在 HTML 內）
       $$("#depositAmountBtns .deposit-amt-btn").forEach(btn=>{
         btn.classList.toggle("active", Number(btn.dataset.amt) === selectedDeposit);
       });
 
-      const el = $("#depositCards");
       el.innerHTML = CONFIG.depositPlans.map(p => `
         <div class="dcard ${p.amount===selectedDeposit?'active':''}" data-amt="${p.amount}">
           <div class="top">
@@ -1490,7 +1562,9 @@
     }
 
     function bindDepositAmountBtns(){
-      $$("#depositAmountBtns .deposit-amt-btn").forEach(btn=>{
+      const amtBtns = $$("#depositAmountBtns .deposit-amt-btn");
+      if(!amtBtns.length) return;
+      amtBtns.forEach(btn=>{
         btn.addEventListener("click", ()=>{
           selectedDeposit = Number(btn.dataset.amt);
           renderDepositCards();
