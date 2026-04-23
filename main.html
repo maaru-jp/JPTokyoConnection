@@ -632,10 +632,7 @@
     }
 
     /* ===== 儲值區塊 ===== */
-    /* 公開儲值方案時：移除此區塊 div 的 class「deposit-card-block--hidden」 */
-    .deposit-card-block.deposit-card-block--hidden{
-      display: none !important;
-    }
+    /* 儲值區塊顯示／隱藏改由 HTML 屬性 hidden 控制（見 #deposit） */
     .deposit-head{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
       padding:20px 22px; margin:0;
@@ -1056,23 +1053,23 @@
                   <tbody>
                     <tr>
                       <th scope="row">超商（7-11／全家／Lawson）</th>
-                      <td>日幣 1,000 以上 <span class="coef">×0.35</span>；未滿以現場報價為準</td>
+                      <td>日幣 1,000 以上 <span class="coef">×0.31</span>；未滿以現場報價為準</td>
                     </tr>
                     <tr>
                       <th scope="row">唐吉軻德</th>
-                      <td>日幣 1,000 以上 <span class="coef">×0.35</span>；未滿以現場報價為準</td>
+                      <td>日幣 1,000 以上 <span class="coef">×0.31</span>；未滿以現場報價為準</td>
                     </tr>
                     <tr>
                       <th scope="row">日本大創（DAISO）</th>
-                      <td>日幣 1,000 以上 <span class="coef">×0.33</span>；未滿以現場報價為準</td>
+                      <td>日幣 1,000 以上 <span class="coef">×0.28</span>；未滿以現場報價為準</td>
                     </tr>
                     <tr>
                       <th scope="row">日本Avail</th>
-                      <td>日幣 1,000 以上 <span class="coef">×0.32</span>；未滿以現場報價為準</td>
+                      <td>日幣 1,000 以上 <span class="coef">×0.3</span>；未滿以現場報價為準</td>
                     </tr>
                     <tr>
                       <th scope="row">三麗鷗（Sanrio）</th>
-                      <td>一般價格 <span class="coef">×0.33</span>；購買 5 樣商品以上 <span class="coef">×0.29</span></td>
+                      <td>日幣 1,000 以上 <span class="coef">×0.3</span>；未滿以現場報價為準</td>
                     </tr>
                     <tr>
                       <th scope="row">Uniqlo、GU</th>
@@ -1087,16 +1084,18 @@
               <div class="hero-mini-table-wrap">
                 <table class="hero-mini-table">
                   <tbody>
-                    <tr><th scope="row">100 日幣</th><td>台幣 50 元</td></tr>
-                    <tr><th scope="row">200 日幣</th><td>台幣 80 元</td></tr>
-                    <tr><th scope="row">300 日幣</th><td>台幣 120 元</td></tr>
-                    <tr><th scope="row">400 日幣</th><td>台幣 140 元</td></tr>
-                    <tr><th scope="row">500 日幣</th><td>台幣 170 元</td></tr>
-                    <tr><th scope="row">600 日幣</th><td>台幣 190 元</td></tr>
+ 	<tr><th scope="row">100 日幣</th><td>台幣 60 元</td></tr>
+                    <tr><th scope="row">200 日幣</th><td>台幣 90 元</td></tr>
+                    <tr><th scope="row">300 日幣</th><td>台幣 130元</td></tr>
+                    <tr><th scope="row">400 日幣</th><td>台幣 150 元</td></tr>
+                    <tr><th scope="row">500 日幣</th><td>台幣 180 元</td></tr>
+                    <tr><th scope="row">600 日幣</th><td>台幣 200元</td></tr>
+                    <tr><th scope="row">700 日幣</th><td>台幣 220  元</td></tr>
+                    <tr><th scope="row">800 日幣</th><td>台幣 240 元</td></tr> 
                   </tbody>
                 </table>
               </div>
-              <p class="hero-panel-note">扭蛋外殼均會保留；外殼若本身稍微受損不屬於瑕疵品。</p>
+              <p class="hero-panel-note">皆保留蛋殼蛋紙；若不需要蛋殼減NT$10元。外殼若本身稍微受損不屬於瑕疵品。</p>
               <h3 class="hero-panel-subh">盲盒</h3>
               <div class="hero-mini-table-wrap">
                 <table class="hero-mini-table">
@@ -1125,8 +1124,8 @@
       </div>
     </div>
 
-    <!-- 儲值方案 + 一鍵複製（暫不公開：見 class deposit-card-block--hidden） -->
-    <div class="card deposit-card-block deposit-card-block--hidden" id="deposit" style="margin-top:20px;">
+    <!-- 儲值方案 + 一鍵複製（暫不公開：見下方 #deposit 的 hidden；公開時刪除 hidden） -->
+    <div class="card deposit-card-block" id="deposit" style="margin-top:20px;" hidden>
       <div class="corner">
         <div class="sticker blue"><span class="emo">🐰</span> 先儲值</div>
         <div class="sticker cream"><span class="emo">🐻</span> 才能喊</div>
