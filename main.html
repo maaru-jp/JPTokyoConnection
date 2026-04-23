@@ -1053,7 +1053,7 @@
                   <tbody>
                     <tr>
                       <th scope="row">超商（7-11／全家／Lawson）</th>
-                      <td>日幣 1,000 以上 <span class="coef">×0.31</span>；未滿以現場報價為準</td>
+                      <td>日幣 1,000 以上 <span class="coef">×0.35</span>；未滿以現場報價為準</td>
                     </tr>
                     <tr>
                       <th scope="row">唐吉軻德</th>
@@ -1073,7 +1073,7 @@
                     </tr>
                     <tr>
                       <th scope="row">Uniqlo、GU</th>
-                      <td>價格 <span class="coef">×0.3</span>；滿 5,000 日圓 <span class="coef">×0.28</span></td>
+                      <td>價格 <span class="coef">一般價格×0.3</span>；滿 5,000 日圓 <span class="coef">×0.28</span></td>
                     </tr>
                   </tbody>
                 </table>
@@ -1119,125 +1119,6 @@
                 <p><strong>國際運費：</strong>本次親飛代購價不加「<strong style="color:#dc2626;">國際運費</strong>」項目，回台後的賣貨便運費另計 NT$38 元。</p>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 儲值方案 + 一鍵複製（暫不公開：見下方 #deposit 的 hidden；公開時刪除 hidden） -->
-    <div class="card deposit-card-block" id="deposit" style="margin-top:20px;" hidden>
-      <div class="corner">
-        <div class="sticker blue"><span class="emo">🐰</span> 先儲值</div>
-        <div class="sticker cream"><span class="emo">🐻</span> 才能喊</div>
-      </div>
-
-      <header class="deposit-head">
-        <div class="deposit-head-inner">
-          <div class="deposit-icon" aria-hidden="true">💰</div>
-          <h2>儲值方案</h2>
-        </div>
-      </header>
-
-      <div class="deposit-wrap">
-        <div class="deposit-grid">
-          <!-- 左欄：儲值方案 -->
-          <div class="deposit-col-left">
-            <div class="deposit-cards-header">
-              <span class="deposit-cards-title">選擇儲值金額</span>
-              <div class="deposit-amount-buttons" id="depositAmountBtns" role="group" aria-label="儲值金額">
-                <button type="button" class="deposit-amt-btn" data-amt="300">300 元</button>
-                <button type="button" class="deposit-amt-btn active" data-amt="500">500 元</button>
-                <button type="button" class="deposit-amt-btn" data-amt="1000">1,000 元</button>
-              </div>
-            </div>
-            <div class="deposit-cards" id="depositCards">
-              <div class="dcard" data-amt="300">
-                <div class="top">
-                  <div>
-                    <p class="amt">NT$ 300</p>
-                    <div class="hint">入門儲值</div>
-                  </div>
-                  <span class="badge-mini">適合少量跟</span>
-                </div>
-                <div class="hint" style="margin-top:10px;">NT$300 贈送 $30｜成單先扣 300｜超額再補</div>
-              </div>
-              <div class="dcard active" data-amt="500">
-                <div class="top">
-                  <div>
-                    <p class="amt">NT$ 500</p>
-                    <div class="hint">標準儲值</div>
-                  </div>
-                  <span class="badge-mini">大多數人選</span>
-                </div>
-                <div class="hint" style="margin-top:10px;">NT$500 贈送 $60｜成單先扣 500｜超額再補</div>
-              </div>
-              <div class="dcard" data-amt="1000">
-                <div class="top">
-                  <div>
-                    <p class="amt">NT$ 1,000</p>
-                    <div class="hint">加速通關</div>
-                  </div>
-                  <span class="badge-mini">熱門品比較穩</span>
-                </div>
-                <div class="hint" style="margin-top:10px;">NT$1000 贈送 $100｜成單先扣 1000｜超額再補</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 右欄：喊單格式 + 注意事項 -->
-          <div class="deposit-col-right">
-            <header class="deposit-head deposit-head-right">
-              <div class="deposit-head-inner">
-                <div class="deposit-icon" aria-hidden="true">📋</div>
-                <h2>喊單格式</h2>
-              </div>
-            </header>
-          <div class="deposit-panel">
-            <div style="margin-bottom:6px; color:var(--muted); font-size:13px; font-weight:800;">
-              把你的「儲值編號」填上，商品喊單直接照這個格式貼到官方 LINE            </div>
-
-            <div class="formrow">
-              <div class="field">
-                <div class="label">儲值編號（必填）</div>
-                <input id="walletId" class="input" placeholder="例：W-024 / MA-108" maxlength="20" />
-              </div>
-              <div class="field">
-              <div class="label">社群暱稱（必填）</div>
-              <input id="nickname" class="input" placeholder="例：小B / 小花" />
-              </div>
-
-              <div class="field" style="flex:1.2;">
-                <div class="label">商品/規格/數量/價格</div>
-                <input id="itemText" class="input" placeholder="例：商品名 / 規格" />
-              </div>
-              <div class="field">
-                <div class="label">數量</div>
-                <input id="itemQty" class="input" placeholder="例：1" maxlength="10" />
-              </div>
-              <div class="field">
-                <div class="label">單價（台幣）</div>
-                <input id="itemPrice" class="input" placeholder="例：100 或 NT$100" maxlength="20" />
-              </div>
-              <div class="field field-subtotal">
-                <div class="label">小計（自動計算）</div>
-                <div id="itemSubtotal" class="deposit-subtotal" role="text" aria-live="polite">－ 請輸入數量與單價</div>
-              </div>
-
-            </div>
-
-            <!-- 注意事項已移到上方「公布欄」收合說明框 -->
-
-            <div class="preview">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                <div class="label">預覽（會複製這段）</div>
-                <button class="btn primary" id="copyBtn" type="button" onclick="copyToClipboard(); return false;">📋 一鍵複製</button>
-              </div>
-              <code id="copyPreview">（請先輸入儲值編號）</code>
-            </div>
-
-            <div style="margin-top:10px; color:var(--muted); font-size:13px; font-weight:800;">
-              📌 提醒：<span class="inline-strong">未提供儲值編號</span> 的喊單並同步私訊官方LINE，不會採買٩(ˊᗜˋ*)و            </div>
-          </div>
           </div>
         </div>
       </div>
