@@ -980,9 +980,12 @@
     </div>
 
     <div class="card notice-card" id="noticeCard">
-      <h2>📢 公布欄 <span class="notice-tag">最新資訊</span></h2>
+      <h2>📌【訂單注意事項】</h2>
       <ul class="notice-list" id="noticeList">
-        <li>目前尚無特別公告，行程與代購規則請參考下方說明。</li>
+        <li>▪️ 喊單後需完成訂金付款，未完成付訂者訂單將不予受理</li>
+        <li>▪️ 補款方式：差額將以「7-11 賣貨便」開單補款<br>請於開單後 48 小時內完成付款</li>
+        <li>▪️ 預估價格：依分級匯率計算，實際金額可能因活動、缺貨或限購等因素調整</li>
+        <li>▪️ 國際運費：本次不另收費（由賣家人肉帶回）</li>
       </ul>
       <details class="notice-details">
         <summary>
@@ -991,11 +994,10 @@
         </summary>
         <div class="notice-body">
           <ul>
-            <li><strong>先儲值後喊單</strong>：未提供儲值編號的喊單不受理</li>
-            <li><strong>棄單處理</strong>：成單後取消視同棄單，<strong style="color:#dc2626;">儲值金不退</strong></li>
-            <li><strong>補款</strong>：差額以 7-11 賣貨便補款，回台後請於開單後 48 小時內完成</li>
-            <li><strong>預估價</strong>：採分級匯率計算；活動 / 缺貨 / 限購會影響實際成單</li>
-            <li><strong>國際運費</strong>：本次不另外收（人肉扛貨帶回）</li>
+            <li><strong>喊單後需完成訂金付款</strong>：未完成付訂者訂單將不予受理</li>
+            <li><strong>補款方式</strong>：差額將以「7-11 賣貨便」開單補款，請於開單後 48 小時內完成付款</li>
+            <li><strong>預估價格</strong>：依分級匯率計算，實際金額可能因活動、缺貨或限購等因素調整</li>
+            <li><strong>國際運費</strong>：本次不另收費（由賣家人肉帶回）</li>
           </ul>
         </div>
       </details>
@@ -1007,18 +1009,18 @@
         <header class="deposit-head">
           <div class="deposit-head-inner">
             <div class="deposit-icon" aria-hidden="true">📌</div>
-            <h2>先儲值再喊單</h2>
+            <h2>喊單後提供訂金付款連結</h2>
           </div>
         </header>
         <div class="hero-flow">
-          <span><span class="num">1</span> 先儲值</span>
+          <span><span class="num">1</span> 喊單+1</span>
           <span class="arrow">→</span>
-          <span><span class="num">2</span> 喊單</span>
+          <span><span class="num">2</span> 完成付訂</span>
           <span class="arrow">→</span>
-          <span><span class="num">3</span> 成單補差額</span>
+          <span><span class="num">3</span> 回台賣貨便寄出</span>
         </div>
         <p class="subtitle">
-          本次採「<strong>東京親飛連線</strong>」喊單+1後要回傳官方LINE<strong>儲值編號</strong>；出貨時以<strong>7-11 賣貨便</strong>補款（限 24 小時）        </p>
+          本次採「<strong>東京親飛連線</strong>」喊單+1後要回傳官方LINE；出貨時以<strong>7-11 賣貨便</strong>寄出        </p>
       </div>
 
       <div class="card hero-side">
@@ -1033,7 +1035,7 @@
           <span class="hero-live-ico" aria-hidden="true">📅</span>
           <div>
             <div class="hero-live-label">連線代購日（暫定）</div>
-            <p class="hero-live-value" id="liveDays">Day 3、Day 6（日本時間晚間 20:00 左右）</p>
+            <p class="hero-live-value" id="liveDays"></p>
           </div>
         </div>
 
@@ -1136,32 +1138,6 @@
       </div>
       <div class="deposit-wrap" style="padding-top:0;">
         <details>
-          <summary>儲值效期是多久？<span class="badge-mini">有效期間</span></summary>
-          <div class="faq-body">
-            <ul>
-              <li>本次儲值金適用於 <span class="inline-strong" style="color:#dc2626;">2026/04/26 – 2026/05/04</span> 行程期間的連線代購</li>
-      
-            </ul>
-          </div>
-        </details>
-
-        <details>
-          <summary>棄單怎麼處理？<span class="badge-mini badge-abandon">棄單</span></summary>
-          <div class="faq-body">
-            成單後取消視同棄單，<span class="inline-strong" style="color:#dc2626;">儲值金不退</span>          </div>
-        </details>
-
-        <details>
-          <summary>補款方式是什麼？多久要補？<span class="badge-mini">補款</span></summary>
-          <div class="faq-body">
-            <ul>
-              <li>成單後會先扣儲值金；若最終金額超過儲值金，會以 <span class="inline-strong" style="color:#dc2626;">7-11 賣貨便</span> 開立差額補款</li>
-              <li>補款期限：開單後 <span class="inline-strong" style="color:#dc2626;">48 小時內</span> 完成；逾期視同放棄，並依棄單規則處理</li>
-            </ul>
-          </div>
-        </details>
-
-        <details>
           <summary>哪些商品不代購？<span class="badge-mini">代購範圍</span></summary>
           <div class="faq-body">
             <p>本賣場不代購以下商品：菸酒類商品、電器類商品及其他違禁品，敬請見諒與配合。</p>
@@ -1218,7 +1194,7 @@
     // ====== 你只需要改這裡（資料區） ======
     const CONFIG = {
       tripRangeText: "2026/04/26 – 2026/05/04（9天）",
-      liveDaysText: "Day 3、Day 6（暫定，日本時間晚間 20:00 左右）",
+      liveDaysText: "",
       // 公布欄（可自行調整內容）
       bulletins: [
         // { type: "info", text: "這裡可以放最新公告，例如「本次行程仍在規劃中，實際代購日以 IG 公告為主」。" }
